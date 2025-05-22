@@ -19,8 +19,8 @@
 <body>
   <div class="container" id="main"></div>
   <script>
-    let board, turn, winner, mode;
-    let gameId = null;
+    let board, turn, winner, mode, aiLevel, gameId = null;
+    let firstTurn = "X"; // Navbat almashinuvi uchun
 
     function renderHome() {
       document.getElementById('main').innerHTML = `
@@ -31,7 +31,6 @@
     }
 
     function startFriendGame() {
-      // Har safar yangi o‘yin uchun random ID yaratiladi
       gameId = Math.random().toString(36).substr(2, 8);
       let joinUrl = `${location.origin}${location.pathname}?game=${gameId}`;
       document.getElementById('main').innerHTML = `
@@ -57,7 +56,7 @@
       mode = "friend";
       winner = null;
       board = [null,null,null,null,null,null,null,null,null];
-      turn = "X";
+      turn = firstTurn;
       renderGame();
     }
 
@@ -83,20 +82,36 @@
         boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
       }
       updateStatus();
+
+      // AI navbati bo'lsa va hali g'olib aniqlanmagan bo'lsa, AI yuradi
+      if (mode === "ai" && turn === "O" && !winner) {
+        setTimeout(aiMove, 400);
+      }
     }
 
     function move(idx){
       if(winner || board[idx]) return;
-      board[idx] = turn;
-      turn = turn === "X" ? "O" : "X";
-      winner = checkWinner();
-      renderGame();
+      if (mode === "ai") {
+        if (turn === "X") {
+          board[idx] = "X";
+          turn = "O";
+          winner = checkWinner();
+          renderGame();
+        }
+      } else {
+        board[idx] = turn;
+        turn = turn === "X" ? "O" : "X";
+        winner = checkWinner();
+        renderGame();
+      }
     }
 
     function restartGame(){
       winner = null;
       board = [null,null,null,null,null,null,null,null,null];
-      turn = "X";
+      // Navbatni har safar o'zgartirish:
+      firstTurn = firstTurn === "X" ? "O" : "X";
+      turn = firstTurn;
       renderGame();
     }
 
@@ -122,7 +137,6 @@
       return null;
     }
 
-    // AI -- qisqartirilgan, to‘liq kod yuqorida ko‘rsatilganidek qo‘shish mumkin
     function showLevelSelect(){
       document.getElementById('main').innerHTML = `
         <h2>AI darajasini tanlang</h2>
@@ -134,16 +148,115 @@
         <button class="btn-block" onclick="renderHome()">Ortga</button>
       `;
     }
+
     function startAIGame(level){
       mode = 'ai';
+      aiLevel = level;
       winner = null;
       board = [null,null,null,null,null,null,null,null,null];
-      turn = "X";
-      // aiLevel = level; // kerak bo‘lsa AI qismini to‘ldiring!
+      // AI va o'yinchi navbatini har safar almash
+      firstTurn = firstTurn === "X" ? "O" : "X";
+      turn = firstTurn;
       renderGame();
     }
 
-    // O‘yinga havola orqali kirgan do‘st uchun
+    // AI yurishi
+    function aiMove() {
+      if (winner) return;
+      let idx;
+      if (aiLevel === "hard") {
+        idx = aiBestMove("O");
+      } else if (aiLevel === "medium") {
+        idx = aiMediumMove();
+      } else {
+        idx = aiRandomMove();
+      }
+      if (typeof idx === "number" && board[idx] === null) {
+        board[idx] = "O";
+        turn = "X";
+        winner = checkWinner();
+        renderGame();
+      }
+    }
+
+    // Sodda random AI
+    function aiRandomMove() {
+      let empty = [];
+      for (let i = 0; i < 9; i++) if (!board[i]) empty.push(i);
+      if (empty.length === 0) return;
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    // O'rta daraja AI (bloklash yoki random)
+    function aiMediumMove() {
+      // G'alaba uchun harakat
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = "O";
+          if (checkWinner() === "O") { board[i] = null; return i; }
+          board[i] = null;
+        }
+      }
+      // Foydalanuvchini bloklash
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = "X";
+          if (checkWinner() === "X") { board[i] = null; return i; }
+          board[i] = null;
+        }
+      }
+      // Aks holda random
+      return aiRandomMove();
+    }
+
+    // Qiyin AI (minimax)
+    function aiBestMove(player) {
+      let bestScore = -Infinity;
+      let move;
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = player;
+          let score = minimax(board, 0, false);
+          board[i] = null;
+          if (score > bestScore) {
+            bestScore = score;
+            move = i;
+          }
+        }
+      }
+      return move;
+    }
+
+    function minimax(bd, depth, isMax) {
+      let result = checkWinner();
+      if (result) {
+        if (result == "O") return 10 - depth;
+        if (result == "X") return depth - 10;
+        if (result == "draw") return 0;
+      }
+      if (isMax) {
+        let best = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!bd[i]) {
+            bd[i] = "O";
+            best = Math.max(best, minimax(bd, depth + 1, false));
+            bd[i] = null;
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!bd[i]) {
+            bd[i] = "X";
+            best = Math.min(best, minimax(bd, depth + 1, true));
+            bd[i] = null;
+          }
+        }
+        return best;
+      }
+    }
+
     window.onload = function() {
       const params = new URLSearchParams(location.search);
       if (params.has('game')) {
@@ -151,7 +264,7 @@
         mode = 'friend';
         winner = null;
         board = [null,null,null,null,null,null,null,null,null];
-        turn = "X";
+        turn = firstTurn;
         renderGame();
       } else {
         renderHome();
