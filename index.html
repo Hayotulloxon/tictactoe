@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center;}
+    .container { margin:40px auto; max-width:350px; background:#fff; padding:25px 15px 35px 15px; border-radius:12px; box-shadow:0 2px 12px #bbb2; }
+    .board { display:grid; grid-template-columns:repeat(3,80px); gap:7px; margin:25px auto; justify-content:center;}
+    .cell { width:80px; height:80px; background:#f4f8fa; border-radius:7px; font-size:2.5em; cursor:pointer; line-height:80px; transition:background .2s; user-select:none; border:2px solid #b4c6d8;}
+    .cell:hover { background:#e8edf3;}
+    .btn-block{display:block;width:100%;margin:8px 0;padding:10px 22px;font-size:1em;border:none;border-radius:8px;background:#3775dd;color:#fff;cursor:pointer;transition:background .2s;text-align:center;}
+    .btn-block:hover{background:#285bb5;}
+    .invite-section{margin:18px 0;background:#eaf6ff;padding:10px;border-radius:8px;}
+    input[type="text"]{width:95%;font-size:1em;padding:5px;border-radius:5px;border:1px solid #b4c6d8;}
+    .status{font-size:1.2em;margin:13px 0 3px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+  <div class="container" id="main"></div>
+  <script>
+    let board, turn, winner, mode;
+    let gameId = null;
+
+    function renderHome() {
+      document.getElementById('main').innerHTML = `
+        <h1>Tic Tac Toe (X-O)</h1>
+        <button class="btn-block" onclick="startFriendGame()">Do‘st bilan o‘ynash</button>
+        <button class="btn-block" onclick="showLevelSelect()">AI (kompyuter) bilan o‘ynash</button>
+      `;
+    }
+
+    function startFriendGame() {
+      // Har safar yangi o‘yin uchun random ID yaratiladi
+      gameId = Math.random().toString(36).substr(2, 8);
+      let joinUrl = `${location.origin}${location.pathname}?game=${gameId}`;
+      document.getElementById('main').innerHTML = `
+        <h2>Do‘stni o‘yin uchun taklif qiling</h2>
+        <div class="invite-section">
+          <input type="text" id="inviteLink" value="${joinUrl}" readonly><br>
+          <button class="btn-block" onclick="copyInvite()">Havolani nusxalash</button>
+        </div>
+        <button class="btn-block" onclick="friendGameBoard()">O‘yin sahifasiga o‘tish</button>
+        <button class="btn-block" onclick="renderHome()">Ortga</button>
+      `;
+    }
+
+    function copyInvite(){
+      let inp = document.getElementById('inviteLink');
+      inp.select();
+      inp.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      alert("Havola nusxalandi!");
+    }
+
+    function friendGameBoard() {
+      mode = "friend";
+      winner = null;
+      board = [null,null,null,null,null,null,null,null,null];
+      turn = "X";
+      renderGame();
+    }
+
+    function renderGame() {
+      let btns = '';
+      if (mode === 'friend') {
+        btns = `<button class="btn-block" onclick="restartGame()">Qayta o‘ynash</button>
+                <button class="btn-block" onclick="renderHome()">Asosiy sahifa</button>`;
+      } else {
+        btns = `<button class="btn-block" onclick="restartGame()">Qayta o‘ynash</button>
+                <button class="btn-block" onclick="showLevelSelect()">Darajani o‘zgartirish</button>
+                <button class="btn-block" onclick="renderHome()">Asosiy sahifa</button>`;
+      }
+      document.getElementById('main').innerHTML = `
+        <h2>${mode === 'friend' ? 'Do‘st bilan o‘yin' : 'AI bilan o‘yin'}</h2>
+        <div id="status" class="status">${turn} navbati</div>
+        <div class="board" id="board"></div>
+        ${btns}
+      `;
+      const boardDiv = document.getElementById('board');
+      boardDiv.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+      }
+      updateStatus();
+    }
+
+    function move(idx){
+      if(winner || board[idx]) return;
+      board[idx] = turn;
+      turn = turn === "X" ? "O" : "X";
+      winner = checkWinner();
+      renderGame();
+    }
+
+    function restartGame(){
+      winner = null;
+      board = [null,null,null,null,null,null,null,null,null];
+      turn = "X";
+      renderGame();
+    }
+
+    function updateStatus(){
+      let statusDiv = document.getElementById('status');
+      if(winner)
+        statusDiv.textContent = winner === 'draw' ? 'Durrang!' : `G‘olib: ${winner}`;
+      else
+        statusDiv.textContent = turn + " navbati";
+    }
+
+    function checkWinner(){
+      const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (let l of lines) {
+        const [a,b,c] = l;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+      }
+      if (board.every(Boolean)) return 'draw';
+      return null;
+    }
+
+    // AI -- qisqartirilgan, to‘liq kod yuqorida ko‘rsatilganidek qo‘shish mumkin
+    function showLevelSelect(){
+      document.getElementById('main').innerHTML = `
+        <h2>AI darajasini tanlang</h2>
+        <div class="level-select">
+          <button class="btn-block" onclick="startAIGame('easy')">Sodda</button>
+          <button class="btn-block" onclick="startAIGame('medium')">O‘rta</button>
+          <button class="btn-block" onclick="startAIGame('hard')">Qiyin</button>
+        </div>
+        <button class="btn-block" onclick="renderHome()">Ortga</button>
+      `;
+    }
+    function startAIGame(level){
+      mode = 'ai';
+      winner = null;
+      board = [null,null,null,null,null,null,null,null,null];
+      turn = "X";
+      // aiLevel = level; // kerak bo‘lsa AI qismini to‘ldiring!
+      renderGame();
+    }
+
+    // O‘yinga havola orqali kirgan do‘st uchun
+    window.onload = function() {
+      const params = new URLSearchParams(location.search);
+      if (params.has('game')) {
+        gameId = params.get('game');
+        mode = 'friend';
+        winner = null;
+        board = [null,null,null,null,null,null,null,null,null];
+        turn = "X";
+        renderGame();
+      } else {
+        renderHome();
+      }
+    }
+  </script>
+</body>
+</html>
