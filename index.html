@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <title>Tic Tac Toe Multiplayer (Firebase)</title>
+  <title>Tic Tac Toe</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center;}
     .container { margin:40px auto; max-width:350px; background:#fff; padding:25px 15px 35px 15px; border-radius:12px; box-shadow:0 2px 12px #bbb2; }
@@ -24,36 +24,39 @@
   <script>
     // 1. FIREBASE CONFIG: mana bu yerga o'zingizning Firebase config-ni qo'ying!
     const firebaseConfig = {
-      apiKey: "YOUR_FIREBASE_API_KEY",
-      authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-      databaseURL: "YOUR_FIREBASE_DATABASE_URL",
-      projectId: "YOUR_FIREBASE_PROJECT_ID",
-      storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyBYeJtfl5e0rlnI47i6QdzHw3TdrQOKEMs",
+      authDomain: "tictactoe-87334.firebaseapp.com",
+      databaseURL: "https://tictactoe-87334-default-rtdb.firebaseio.com",
+      projectId: "tictactoe-87334",
+      storageBucket: "tictactoe-87334.appspot.com",
+      messagingSenderId: "840791007390",
+      appId: "1:840791007390:web:e2b64b6ba46d6dd5875b8f",
+      measurementId: "G-LBPDVZFGVY"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let board, turn, winner, mode, gameId = null, playerSymbol = null, roomRef = null, joined = false;
+    // O'yin holati
+    let board, turn, winner, mode, aiLevel, gameId = null, playerSymbol = null, roomRef = null;
 
     function renderHome() {
       document.getElementById('main').innerHTML = `
         <h1>Tic Tac Toe (X-O)</h1>
-        <button class="btn-block" onclick="createGame()">Do‘st bilan multiplayer o‘ynash</button>
-        <button class="btn-block" onclick="location.reload()">Yakka rejim (AI) uchun eski koddan foydalaning</button>
+        <button class="btn-block" onclick="startFriendGame()">Do‘st bilan o‘ynash</button>
+        <button class="btn-block" onclick="showLevelSelect()">AI (kompyuter) bilan o‘ynash</button>
       `;
     }
 
-    function createGame() {
+    // DO'ST BILAN O'YIN (MULTIPLAYER)
+    function startFriendGame() {
       gameId = Math.random().toString(36).substr(2, 8);
       playerSymbol = "X";
-      // Firebase room yaratish
       board = [null,null,null,null,null,null,null,null,null];
       turn = "X";
       winner = null;
+      // Firebase room yaratish
       db.ref("games/"+gameId).set({
-        board, turn, winner, created: Date.now()
+        board, turn, winner
       });
       let joinUrl = `${location.origin}${location.pathname}?game=${gameId}`;
       document.getElementById('main').innerHTML = `
@@ -62,7 +65,7 @@
           <input type="text" id="inviteLink" value="${joinUrl}" readonly><br>
           <button class="btn-block" onclick="copyInvite()">Havolani nusxalash</button>
         </div>
-        <button class="btn-block" onclick="joinGame('${gameId}')">O‘yin sahifasiga o‘tish</button>
+        <button class="btn-block" onclick="friendGameBoard('${gameId}')">O‘yin sahifasiga o‘tish</button>
         <button class="btn-block" onclick="renderHome()">Ortga</button>
       `;
     }
@@ -75,19 +78,21 @@
       alert("Havola nusxalandi!");
     }
 
-    function joinGame(id) {
-      gameId = id;
-      playerSymbol = "O";
+    function friendGameBoard(id) {
+      mode = "friend";
+      if (id) gameId = id;
+      // O'yinchi belgisi: birinchi kirgan X, ikkinchi - O
+      playerSymbol = playerSymbol || "O";
       startMultiplayer();
     }
 
-    function renderGame() {
+    function renderFriendGame() {
       let btns = `
-        <button class="btn-block" onclick="restartGame()">Qayta o‘ynash</button>
+        <button class="btn-block" onclick="restartFriendGame()">Qayta o‘ynash</button>
         <button class="btn-block" onclick="leaveGame()">O‘yin tugatish</button>
       `;
       document.getElementById('main').innerHTML = `
-        <h2>Tic Tac Toe - Multiplayer</h2>
+        <h2>Do‘st bilan multiplayer o‘yin</h2>
         <div class="status" id="status"></div>
         <div class="board" id="board"></div>
         ${btns}
@@ -98,23 +103,21 @@
       const boardDiv = document.getElementById('board');
       boardDiv.innerHTML = '';
       for (let i = 0; i < 9; i++) {
-        boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+        boardDiv.innerHTML += `<div class="cell" onclick="moveFriend(${i})">${board[i] ? board[i] : ''}</div>`;
       }
-      updateStatus();
+      updateFriendStatus();
     }
 
-    function move(idx){
+    function moveFriend(idx){
       if(winner || board[idx] || turn !== playerSymbol) return;
       board[idx] = playerSymbol;
       turn = playerSymbol === "X" ? "O" : "X";
       winner = checkWinner();
-      // Natijani Firebase-ga yozamiz
       db.ref("games/"+gameId).update({ board, turn, winner });
     }
 
-    function restartGame(){
+    function restartFriendGame(){
       if (!gameId) return;
-      // Faqat X boshlaydi, navbat o'zgarmaydi
       board = [null,null,null,null,null,null,null,null,null];
       turn = "X";
       winner = null;
@@ -129,7 +132,7 @@
       renderHome();
     }
 
-    function updateStatus(){
+    function updateFriendStatus(){
       let statusDiv = document.getElementById('status');
       if(winner)
         statusDiv.textContent = winner === 'draw' ? 'Durrang!' : `G‘olib: ${winner}`;
@@ -153,17 +156,11 @@
       return null;
     }
 
-    // --- Multiplayer boshlanishi va sinxronizatsiya ---
+    // Multiplayer boshlanishi va sinxronizatsiya
     function startMultiplayer() {
-      mode = 'friend';
-      winner = null;
-      board = [null,null,null,null,null,null,null,null,null];
-      turn = "X";
-      // X o‘yinchi (yaratuvchi) bo‘lsa - X, boshqa kishi 'O'
-      if (!playerSymbol) playerSymbol = "O";
-      renderGame();
+      renderFriendGame();
       // Firebase listener
-      if (roomRef) roomRef.off(); // eski listener o‘chiriladi
+      if (roomRef) roomRef.off();
       roomRef = db.ref("games/"+gameId);
       roomRef.on('value', (snap) => {
         let data = snap.val();
@@ -175,7 +172,7 @@
         board = data.board;
         turn = data.turn;
         winner = data.winner;
-        renderGame();
+        renderFriendGame();
       });
     }
 
@@ -185,9 +182,160 @@
       if (params.has('game')) {
         gameId = params.get('game');
         playerSymbol = "O";
-        startMultiplayer();
+        friendGameBoard(gameId);
       } else {
         renderHome();
+      }
+    }
+
+    // QOLGAN QISMLAR: AI va asosiy menyu o'zgarmagan
+    function showLevelSelect(){
+      document.getElementById('main').innerHTML = `
+        <h2>AI darajasini tanlang</h2>
+        <div class="level-select">
+          <button class="btn-block" onclick="startAIGame('easy')">Sodda</button>
+          <button class="btn-block" onclick="startAIGame('medium')">O‘rta</button>
+          <button class="btn-block" onclick="startAIGame('hard')">Qiyin</button>
+        </div>
+        <button class="btn-block" onclick="renderHome()">Ortga</button>
+      `;
+    }
+    function startAIGame(level){
+      mode = 'ai';
+      aiLevel = level;
+      winner = null;
+      board = [null,null,null,null,null,null,null,null,null];
+      turn = "X";
+      renderGame();
+    }
+    function renderGame() {
+      let btns = `<button class="btn-block" onclick="restartGame()">Qayta o‘ynash</button>
+                  <button class="btn-block" onclick="showLevelSelect()">Darajani o‘zgartirish</button>
+                  <button class="btn-block" onclick="renderHome()">Asosiy sahifa</button>`;
+      document.getElementById('main').innerHTML = `
+        <h2>AI bilan o‘yin</h2>
+        <div id="status" class="status">${turn} navbati</div>
+        <div class="board" id="board"></div>
+        ${btns}
+      `;
+      const boardDiv = document.getElementById('board');
+      boardDiv.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+      }
+      updateStatus();
+      if (mode === "ai" && turn === "O" && !winner) {
+        setTimeout(aiMove, 400);
+      }
+    }
+    function move(idx){
+      if(winner || board[idx]) return;
+      if (mode === "ai") {
+        if (turn === "X") {
+          board[idx] = "X";
+          turn = "O";
+          winner = checkWinner();
+          renderGame();
+        }
+      }
+    }
+    function restartGame(){
+      winner = null;
+      board = [null,null,null,null,null,null,null,null,null];
+      turn = "X";
+      renderGame();
+    }
+    function updateStatus(){
+      let statusDiv = document.getElementById('status');
+      if(winner)
+        statusDiv.textContent = winner === 'draw' ? 'Durrang!' : `G‘olib: ${winner}`;
+      else
+        statusDiv.textContent = turn + " navbati";
+    }
+    // AI qismlari (sodda, o'rta, qiyin) - eski kodingizdek
+    function aiMove() {
+      if (winner) return;
+      let idx;
+      if (aiLevel === "hard") {
+        idx = aiBestMove("O");
+      } else if (aiLevel === "medium") {
+        idx = aiMediumMove();
+      } else {
+        idx = aiRandomMove();
+      }
+      if (typeof idx === "number" && board[idx] === null) {
+        board[idx] = "O";
+        turn = "X";
+        winner = checkWinner();
+        renderGame();
+      }
+    }
+    function aiRandomMove() {
+      let empty = [];
+      for (let i = 0; i < 9; i++) if (!board[i]) empty.push(i);
+      if (empty.length === 0) return;
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+    function aiMediumMove() {
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = "O";
+          if (checkWinner() === "O") { board[i] = null; return i; }
+          board[i] = null;
+        }
+      }
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = "X";
+          if (checkWinner() === "X") { board[i] = null; return i; }
+          board[i] = null;
+        }
+      }
+      return aiRandomMove();
+    }
+    function aiBestMove(player) {
+      let bestScore = -Infinity;
+      let move;
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = player;
+          let score = minimax(board, 0, false);
+          board[i] = null;
+          if (score > bestScore) {
+            bestScore = score;
+            move = i;
+          }
+        }
+      }
+      return move;
+    }
+    function minimax(bd, depth, isMax) {
+      let result = checkWinner();
+      if (result) {
+        if (result == "O") return 10 - depth;
+        if (result == "X") return depth - 10;
+        if (result == "draw") return 0;
+      }
+      if (isMax) {
+        let best = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!bd[i]) {
+            bd[i] = "O";
+            best = Math.max(best, minimax(bd, depth + 1, false));
+            bd[i] = null;
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!bd[i]) {
+            bd[i] = "X";
+            best = Math.min(best, minimax(bd, depth + 1, true));
+            bd[i] = null;
+          }
+        }
+        return best;
       }
     }
   </script>
