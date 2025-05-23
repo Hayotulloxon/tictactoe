@@ -22,7 +22,7 @@
 <body>
   <div class="container" id="main"></div>
   <script>
-    // 1. FIREBASE CONFIG: mana bu yerga o'zingizning Firebase config-ni qo'ying!
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBYeJtfl5e0rlnI47i6QdzHw3TdrQOKEMs",
       authDomain: "tictactoe-87334.firebaseapp.com",
@@ -36,9 +36,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // O'yin holati
     let board, turn, winner, mode, aiLevel, gameId = null, playerSymbol = null, roomRef = null;
-    let isFirstVisit = true;
 
     function renderHome() {
       document.getElementById('main').innerHTML = `
@@ -48,17 +46,14 @@
       `;
     }
 
-    // DO'ST BILAN O'YIN (MULTIPLAYER)
+    // Multiplayer boshlash
     function startFriendGame() {
       gameId = Math.random().toString(36).substr(2, 8);
       playerSymbol = "X";
       board = [null,null,null,null,null,null,null,null,null];
       turn = "X";
       winner = null;
-      // Firebase room yaratish
-      db.ref("games/"+gameId).set({
-        board, turn, winner
-      });
+      db.ref("games/"+gameId).set({ board, turn, winner });
       let joinUrl = `${location.origin}${location.pathname}?game=${gameId}`;
       document.getElementById('main').innerHTML = `
         <h2>Do‘stni o‘yin uchun taklif qiling</h2>
@@ -82,9 +77,7 @@
     function friendGameBoard(id) {
       mode = "friend";
       if (id) gameId = id;
-      // O'yinchi belgisi: birinchi kirgan X, ikkinchi - O
-      // Agar gameId bo'lsa, va bu birinchi tashrif bo'lsa (ya'ni havolani bosib kirgan), playerSymbol = "O"
-      if(playerSymbol == null) playerSymbol = "O";
+      if (playerSymbol == null) playerSymbol = "O";
       startMultiplayer();
     }
 
@@ -127,8 +120,7 @@
     }
 
     function leaveGame() {
-      // O'yinda faqat bitta foydalanuvchi qolsa yoki hamma chiqib ketsa, o'chirish mumkin
-      // Bu qatorni olib tashlash orqali board doim saqlanib qoladi:
+      // O‘yin o‘chirib yuborilmasin!
       // if (gameId) db.ref("games/"+gameId).remove();
       gameId = null;
       playerSymbol = null;
@@ -160,19 +152,18 @@
       return null;
     }
 
-    // Multiplayer boshlanishi va sinxronizatsiya
     function startMultiplayer() {
       renderFriendGame();
-      // Firebase listener
       if (roomRef) roomRef.off();
       roomRef = db.ref("games/"+gameId);
       roomRef.on('value', (snap) => {
         let data = snap.val();
-        // Konsol uchun kuzatamiz
-        console.log("Firebase data:", data);
+        // Debug uchun
+        // console.log("Firebase data:", data);
         if (!data) {
+          // Board yo‘qolmasligi uchun faqat alert beramiz, lekin leaveGame chaqirmaymiz
           alert("O‘yin tugadi yoki mavjud emas.");
-          leaveGame();
+          // leaveGame(); // olib tashlandi!
           return;
         }
         board = data.board;
@@ -182,7 +173,6 @@
       });
     }
 
-    // URLdan gameId bo‘lsa, multiplayerga ulash
     window.onload = function() {
       const params = new URLSearchParams(location.search);
       if (params.has('game')) {
@@ -194,7 +184,7 @@
       }
     }
 
-    // QOLGAN QISMLAR: AI va asosiy menyu o'zgarmagan
+    // AI qismlari o‘zgarmagan
     function showLevelSelect(){
       document.getElementById('main').innerHTML = `
         <h2>AI darajasini tanlang</h2>
@@ -258,7 +248,6 @@
       else
         statusDiv.textContent = turn + " navbati";
     }
-    // AI qismlari (sodda, o'rta, qiyin) - eski kodingizdek
     function aiMove() {
       if (winner) return;
       let idx;
