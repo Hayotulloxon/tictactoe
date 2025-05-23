@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <title>Tic Tac Toe Multiplayer (X-O)</title>
+  <title>Tic Tac Toe Multiplayer & AI (X-O)</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center;}
     .container { margin:40px auto; max-width:350px; background:#fff; padding:25px 15px 35px 15px; border-radius:12px; box-shadow:0 2px 12px #bbb2; }
@@ -15,14 +15,30 @@
     .link {margin:12px 0; color:#3775dd; font-size:1em;}
     .me {color:#2db312; font-weight:bold;}
     .wait {color:#c19700;}
+    #copyBtn {
+      display:inline-block;
+      margin-left:5px;
+      padding:3px 12px;
+      font-size:1em;
+      border:none;
+      border-radius:6px;
+      background:#3775dd;
+      color:#fff;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    #copyBtn.copied {
+      background:#2db312;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Tic Tac Toe Multiplayer (X-O)</h1>
+    <h1>Tic Tac Toe Multiplayer & AI (X-O)</h1>
     <div id="main-menu">
       <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
       <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
+      <button class="btn-block" onclick="startAI()">AI (kompyuter) bilan o‘ynash</button>
     </div>
     <div id="game" style="display:none;">
       <div class="status" id="status"></div>
@@ -32,15 +48,13 @@
       <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
     </div>
   </div>
-  <!-- Socket.io klient kutubxonasi -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     // === SOZLAMALAR ===
-    // Backend URL'niz shu:
     const backendUrl = "https://tictactoebackend-eh25.onrender.com";
 
     // === O'zgaruvchilar ===
-    let mode = null; // "local" yoki "online"
+    let mode = null; // "local" | "online" | "ai"
     let board = Array(9).fill(null);
     let turn = "X";
     let winner = null;
@@ -48,9 +62,11 @@
     let oppSymbol = null;
     let gameId = null;
     let socket = null;
-    let isMyTurn = true;
+    let aiSymbol = null;
+    let humanSymbol = null;
+    let nextStarter = "X";
 
-    // === DOM elementi ===
+    // DOM
     const mainMenu = document.getElementById("main-menu");
     const gameDiv = document.getElementById("game");
     const statusDiv = document.getElementById("status");
@@ -62,11 +78,10 @@
     function startLocal() {
       mode = "local";
       board = Array(9).fill(null);
-      turn = "X";
+      turn = nextStarter;
       winner = null;
       mySymbol = null;
       oppSymbol = null;
-      isMyTurn = true;
       mainMenu.style.display = "none";
       shareBlock.innerHTML = "";
       gameDiv.style.display = "";
@@ -76,28 +91,23 @@
     }
 
     function startOnline() {
-      // O'yin xonasi ID'sini yaratish yoki olish
       let q = new URLSearchParams(location.search);
       gameId = q.get("game");
       if (!gameId) {
-        // O'yin yaratuvchi ("X")
         gameId = Math.random().toString(36).slice(2,10);
-        mySymbol = "X";
-        oppSymbol = "O";
-        isMyTurn = true;
+        mySymbol = nextStarter;
+        oppSymbol = nextStarter === "X" ? "O" : "X";
         history.replaceState({}, '', '?game=' + gameId);
         showShareLink();
       } else {
-        // O'yinga kiruvchi ("O")
-        mySymbol = "O";
-        oppSymbol = "X";
-        isMyTurn = false;
+        mySymbol = nextStarter === "X" ? "O" : "X";
+        oppSymbol = nextStarter;
       }
       mode = "online";
       mainMenu.style.display = "none";
       gameDiv.style.display = "";
       board = Array(9).fill(null);
-      turn = "X";
+      turn = nextStarter;
       winner = null;
       restartBtn.style.display = "none";
       renderBoard();
@@ -105,10 +115,42 @@
       connectSocket();
     }
 
+    function startAI() {
+      mode = "ai";
+      board = Array(9).fill(null);
+      winner = null;
+      aiSymbol = nextStarter;
+      humanSymbol = nextStarter === "X" ? "O" : "X";
+      turn = nextStarter;
+      mainMenu.style.display = "none";
+      shareBlock.innerHTML = "";
+      gameDiv.style.display = "";
+      renderBoard();
+      updateStatus();
+      restartBtn.style.display = "none";
+      if (turn === aiSymbol) setTimeout(aiMove, 400);
+    }
+
     function showShareLink() {
       shareBlock.innerHTML = `Ushbu havolani do‘stingizga yuboring: <br>
-        <input style="width:85%;text-align:center;" readonly value="${location.href}"><br>
+        <input id="shareInput" style="width:75%;text-align:center;" readonly value="${location.href}">
+        <button id="copyBtn" onclick="copyShareLink()">Nusxalash</button><br>
         <span class="wait">Do‘stingiz kirishini kuting...</span>`;
+    }
+
+    function copyShareLink() {
+      const input = document.getElementById("shareInput");
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value).then(()=>{
+        const btn = document.getElementById("copyBtn");
+        btn.textContent = "Nusxalandi!";
+        btn.classList.add("copied");
+        setTimeout(()=>{
+          btn.textContent = "Nusxalash";
+          btn.classList.remove("copied");
+        }, 1300);
+      });
     }
 
     function connectSocket() {
@@ -125,7 +167,7 @@
         if (winner) restartBtn.style.display = "";
       });
       socket.on("player-joined", () => {
-        if (mySymbol === "X") {
+        if (mySymbol === nextStarter) {
           shareBlock.innerHTML = '<span class="me">Do‘stingiz ulandi! O‘yin boshlandi.</span>';
         }
       });
@@ -146,6 +188,15 @@
       } else if (mode === "online") {
         if ((mySymbol !== turn) || winner) return;
         socket.emit("move", { gameId, idx, player: mySymbol });
+      } else if (mode === "ai") {
+        if (turn !== humanSymbol || winner) return;
+        board[idx] = humanSymbol;
+        winner = checkWinner();
+        turn = aiSymbol;
+        renderBoard();
+        updateStatus();
+        if (winner) restartBtn.style.display = "";
+        else setTimeout(aiMove, 400);
       }
     }
 
@@ -177,6 +228,20 @@
         } else {
           statusDiv.innerHTML = 'Do‘stingiz harakati <span class="wait">(' + oppSymbol + ')</span>';
         }
+      } else if (mode === "ai") {
+        if (winner) {
+          if (winner === "draw") {
+            statusDiv.textContent = "Durrang!";
+          } else if (winner === humanSymbol) {
+            statusDiv.textContent = "Siz yutdingiz! 🎉";
+          } else {
+            statusDiv.textContent = "AI yutdi 🤖";
+          }
+        } else if (turn === humanSymbol) {
+          statusDiv.textContent = "Sizning navbatingiz";
+        } else {
+          statusDiv.textContent = "AI navbati...";
+        }
       }
     }
 
@@ -195,15 +260,27 @@
     }
 
     function restartGame() {
+      // Navbat har safar o'zgaradi
+      nextStarter = (nextStarter === "X" ? "O" : "X");
       if (mode === "local") {
         board = Array(9).fill(null);
-        turn = "X";
+        turn = nextStarter;
         winner = null;
         renderBoard();
         updateStatus();
         restartBtn.style.display = "none";
       } else if (mode === "online" && socket) {
         socket.emit("restart", gameId);
+      } else if (mode === "ai") {
+        board = Array(9).fill(null);
+        winner = null;
+        aiSymbol = nextStarter;
+        humanSymbol = nextStarter === "X" ? "O" : "X";
+        turn = nextStarter;
+        renderBoard();
+        updateStatus();
+        restartBtn.style.display = "none";
+        if (turn === aiSymbol) setTimeout(aiMove, 400);
       }
     }
 
@@ -225,7 +302,41 @@
       shareBlock.innerHTML = "";
     }
 
-    // Agar URL’da ?game=... bo‘lsa, avtomatik multiplayerga kirish
+    function aiMove() {
+      if (winner || turn !== aiSymbol) return;
+      let moveIdx = findBestMove(board, aiSymbol, humanSymbol);
+      if (moveIdx === -1) {
+        let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
+        moveIdx = empties[Math.floor(Math.random() * empties.length)];
+      }
+      board[moveIdx] = aiSymbol;
+      winner = checkWinner();
+      turn = humanSymbol;
+      renderBoard();
+      updateStatus();
+      if (!winner && turn === aiSymbol) setTimeout(aiMove, 400);
+      if (winner) restartBtn.style.display = "";
+    }
+
+    function findBestMove(b, ai, human) {
+      for (let i = 0; i < 9; i++) {
+        if (!b[i]) {
+          b[i] = ai;
+          if (checkWinner() === ai) { b[i] = null; return i; }
+          b[i] = null;
+        }
+      }
+      for (let i = 0; i < 9; i++) {
+        if (!b[i]) {
+          b[i] = human;
+          if (checkWinner() === human) { b[i] = null; return i; }
+          b[i] = null;
+        }
+      }
+      if (!b[4]) return 4;
+      return -1;
+    }
+
     window.onload = function() {
       let q = new URLSearchParams(location.search);
       if (q.get("game")) startOnline();
