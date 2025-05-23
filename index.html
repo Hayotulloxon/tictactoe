@@ -2,143 +2,185 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <title>Tic Tac Toe</title>
+  <title>Tic Tac Toe Multiplayer (X-O)</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center;}
     .container { margin:40px auto; max-width:350px; background:#fff; padding:25px 15px 35px 15px; border-radius:12px; box-shadow:0 2px 12px #bbb2; }
     .board { display:grid; grid-template-columns:repeat(3,80px); gap:7px; margin:25px auto; justify-content:center;}
     .cell { width:80px; height:80px; background:#f4f8fa; border-radius:7px; font-size:2.5em; cursor:pointer; line-height:80px; transition:background .2s; user-select:none; border:2px solid #b4c6d8;}
     .cell:hover { background:#e8edf3;}
-    .btn-block{display:block;width:100%;margin:8px 0;padding:10px 22px;font-size:1em;border:none;border-radius:8px;background:#3775dd;color:#fff;cursor:pointer;transition:background .2s;text-align:center;}
+    .btn-block{display:block;width:100%;margin:8px 0;padding:10px 22px;font-size:1em;border:none;border-radius:8px;background:#3775dd;color:#fff;cursor:pointer;transition:background .2s;}
     .btn-block:hover{background:#285bb5;}
-    .invite-section{margin:18px 0;background:#eaf6ff;padding:10px;border-radius:8px;}
-    input[type="text"]{width:95%;font-size:1em;padding:5px;border-radius:5px;border:1px solid #b4c6d8;}
     .status{font-size:1.2em;margin:13px 0 3px 0;font-weight:bold;}
+    .link {margin:12px 0; color:#3775dd; font-size:1em;}
+    .me {color:#2db312; font-weight:bold;}
+    .wait {color:#c19700;}
   </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div class="container" id="main"></div>
+  <div class="container">
+    <h1>Tic Tac Toe Multiplayer (X-O)</h1>
+    <div id="main-menu">
+      <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
+      <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
+    </div>
+    <div id="game" style="display:none;">
+      <div class="status" id="status"></div>
+      <div class="board" id="board"></div>
+      <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
+      <div id="share-block" class="link"></div>
+      <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
+    </div>
+  </div>
+  <!-- Socket.io klient kutubxonasi -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyB7Cf_0l-zKgPveEfI1BbfhPJY-4DvR5Wg",
-      authDomain: "tictactoe-fb3e6.firebaseapp.com",
-      databaseURL: "https://tictactoe-fb3e6-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "tictactoe-fb3e6",
-      storageBucket: "tictactoe-fb3e6.firebasestorage.app",
-      messagingSenderId: "580266324048",
-      appId: "1:580266324048:web:b738c79d0c49191e7e6155",
-      measurementId: "G-0EJ6Z6L8C3"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // === SOZLAMALAR ===
+    // Backend URL'niz shu:
+    const backendUrl = "https://tictactoebackend-eh25.onrender.com";
 
-    let board, turn, winner, mode, aiLevel, gameId = null, playerSymbol = null, roomRef = null;
+    // === O'zgaruvchilar ===
+    let mode = null; // "local" yoki "online"
+    let board = Array(9).fill(null);
+    let turn = "X";
+    let winner = null;
+    let mySymbol = null;
+    let oppSymbol = null;
+    let gameId = null;
+    let socket = null;
+    let isMyTurn = true;
 
-    function renderHome() {
-      document.getElementById('main').innerHTML = `
-        <h1>Tic Tac Toe (X-O)</h1>
-        <button class="btn-block" onclick="startFriendGame()">Do‘st bilan o‘ynash</button>
-        <button class="btn-block" onclick="showLevelSelect()">AI (kompyuter) bilan o‘ynash</button>
-      `;
-    }
+    // === DOM elementi ===
+    const mainMenu = document.getElementById("main-menu");
+    const gameDiv = document.getElementById("game");
+    const statusDiv = document.getElementById("status");
+    const boardDiv = document.getElementById("board");
+    const restartBtn = document.getElementById("restartBtn");
+    const shareBlock = document.getElementById("share-block");
 
-    // Multiplayer boshlash
-    function startFriendGame() {
-      gameId = Math.random().toString(36).substr(2, 8);
-      playerSymbol = "X";
-      board = [null,null,null,null,null,null,null,null,null];
+    // === Funksiyalar ===
+    function startLocal() {
+      mode = "local";
+      board = Array(9).fill(null);
       turn = "X";
       winner = null;
-      db.ref("games/"+gameId).set({ board, turn, winner });
-      let joinUrl = `${location.origin}${location.pathname}?game=${gameId}`;
-      document.getElementById('main').innerHTML = `
-        <h2>Do‘stni o‘yin uchun taklif qiling</h2>
-        <div class="invite-section">
-          <input type="text" id="inviteLink" value="${joinUrl}" readonly><br>
-          <button class="btn-block" onclick="copyInvite()">Havolani nusxalash</button>
-        </div>
-        <button class="btn-block" onclick="friendGameBoard('${gameId}')">O‘yin sahifasiga o‘tish</button>
-        <button class="btn-block" onclick="renderHome()">Ortga</button>
-      `;
+      mySymbol = null;
+      oppSymbol = null;
+      isMyTurn = true;
+      mainMenu.style.display = "none";
+      shareBlock.innerHTML = "";
+      gameDiv.style.display = "";
+      renderBoard();
+      updateStatus();
+      restartBtn.style.display = "none";
     }
 
-    function copyInvite(){
-      let inp = document.getElementById('inviteLink');
-      inp.select();
-      inp.setSelectionRange(0, 99999);
-      document.execCommand('copy');
-      alert("Havola nusxalandi!");
-    }
-
-    function friendGameBoard(id) {
-      mode = "friend";
-      if (id) gameId = id;
-      if (playerSymbol == null) playerSymbol = "O";
-      startMultiplayer();
-    }
-
-    function renderFriendGame() {
-      let btns = `
-        <button class="btn-block" onclick="restartFriendGame()">Qayta o‘ynash</button>
-        <button class="btn-block" onclick="leaveGame()">O‘yin tugatish</button>
-      `;
-      document.getElementById('main').innerHTML = `
-        <h2>Do‘st bilan multiplayer o‘yin</h2>
-        <div class="status" id="status"></div>
-        <div class="board" id="board"></div>
-        ${btns}
-        <div style="font-size:0.97em;margin-top:8px;opacity:0.7">
-          Siz: <b>${playerSymbol ? playerSymbol : "?"}</b> &nbsp; | &nbsp; O‘yin kodi: <b>${gameId}</b>
-        </div>
-      `;
-      const boardDiv = document.getElementById('board');
-      boardDiv.innerHTML = '';
-      for (let i = 0; i < 9; i++) {
-        boardDiv.innerHTML += `<div class="cell" onclick="moveFriend(${i})">${board[i] ? board[i] : ''}</div>`;
+    function startOnline() {
+      // O'yin xonasi ID'sini yaratish yoki olish
+      let q = new URLSearchParams(location.search);
+      gameId = q.get("game");
+      if (!gameId) {
+        // O'yin yaratuvchi ("X")
+        gameId = Math.random().toString(36).slice(2,10);
+        mySymbol = "X";
+        oppSymbol = "O";
+        isMyTurn = true;
+        history.replaceState({}, '', '?game=' + gameId);
+        showShareLink();
+      } else {
+        // O'yinga kiruvchi ("O")
+        mySymbol = "O";
+        oppSymbol = "X";
+        isMyTurn = false;
       }
-      updateFriendStatus();
-    }
-
-    function moveFriend(idx){
-      if(winner || board[idx] || turn !== playerSymbol) return;
-      board[idx] = playerSymbol;
-      turn = playerSymbol === "X" ? "O" : "X";
-      winner = checkWinner();
-      db.ref("games/"+gameId).update({ board, turn, winner });
-    }
-
-    function restartFriendGame(){
-      if (!gameId) return;
-      board = [null,null,null,null,null,null,null,null,null];
+      mode = "online";
+      mainMenu.style.display = "none";
+      gameDiv.style.display = "";
+      board = Array(9).fill(null);
       turn = "X";
       winner = null;
-      db.ref("games/"+gameId).update({ board, turn, winner });
+      restartBtn.style.display = "none";
+      renderBoard();
+      updateStatus();
+      connectSocket();
     }
 
-    function leaveGame() {
-      // O‘yin o‘chirib yuborilmasin!
-      // if (gameId) db.ref("games/"+gameId).remove();
-      gameId = null;
-      playerSymbol = null;
-      if (roomRef) roomRef.off();
-      renderHome();
+    function showShareLink() {
+      shareBlock.innerHTML = `Ushbu havolani do‘stingizga yuboring: <br>
+        <input style="width:85%;text-align:center;" readonly value="${location.href}"><br>
+        <span class="wait">Do‘stingiz kirishini kuting...</span>`;
     }
 
-    function updateFriendStatus(){
-      let statusDiv = document.getElementById('status');
-      if(winner)
-        statusDiv.textContent = winner === 'draw' ? 'Durrang!' : `G‘olib: ${winner}`;
-      else if (turn === playerSymbol)
-        statusDiv.textContent = "Sizning navbatingiz!";
-      else
-        statusDiv.textContent = "Do‘stning navbati...";
+    function connectSocket() {
+      socket = io(backendUrl);
+      socket.on("connect", () => {
+        socket.emit("join", gameId);
+      });
+      socket.on("state", (game) => {
+        board = game.board;
+        turn = game.turn;
+        winner = game.winner;
+        renderBoard();
+        updateStatus();
+        if (winner) restartBtn.style.display = "";
+      });
+      socket.on("player-joined", () => {
+        if (mySymbol === "X") {
+          shareBlock.innerHTML = '<span class="me">Do‘stingiz ulandi! O‘yin boshlandi.</span>';
+        }
+      });
+      socket.on("disconnect", () => {
+        statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
+      });
     }
 
-    function checkWinner(){
+    function move(idx) {
+      if (board[idx] || winner) return;
+      if (mode === "local") {
+        board[idx] = turn;
+        winner = checkWinner();
+        turn = turn === "X" ? "O" : "X";
+        renderBoard();
+        updateStatus();
+        if (winner) restartBtn.style.display = "";
+      } else if (mode === "online") {
+        if ((mySymbol !== turn) || winner) return;
+        socket.emit("move", { gameId, idx, player: mySymbol });
+      }
+    }
+
+    function renderBoard() {
+      boardDiv.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+      }
+    }
+
+    function updateStatus() {
+      if (mode === "local") {
+        if (winner)
+          statusDiv.textContent = winner === "draw" ? "Durrang!" : `G‘olib: ${winner}`;
+        else
+          statusDiv.textContent = `Navbat: ${turn}`;
+      } else if (mode === "online") {
+        if (!mySymbol) return;
+        if (winner) {
+          if (winner === "draw") {
+            statusDiv.textContent = "Durrang!";
+          } else if (winner === mySymbol) {
+            statusDiv.textContent = "Siz g‘olibsiz! 🎉";
+          } else {
+            statusDiv.textContent = "Do‘stingiz g‘olib!";
+          }
+        } else if (turn === mySymbol) {
+          statusDiv.innerHTML = 'Sizning navbatingiz <span class="me">(' + mySymbol + ')</span>';
+        } else {
+          statusDiv.innerHTML = 'Do‘stingiz harakati <span class="wait">(' + oppSymbol + ')</span>';
+        }
+      }
+    }
+
+    function checkWinner() {
       const lines = [
         [0,1,2],[3,4,5],[6,7,8],
         [0,3,6],[1,4,7],[2,5,8],
@@ -152,186 +194,41 @@
       return null;
     }
 
-    function startMultiplayer() {
-      renderFriendGame();
-      if (roomRef) roomRef.off();
-      roomRef = db.ref("games/"+gameId);
-      roomRef.on('value', (snap) => {
-        let data = snap.val();
-        // Debug uchun
-        // console.log("Firebase data:", data);
-        if (!data) {
-          // Board yo‘qolmasligi uchun faqat alert beramiz, lekin leaveGame chaqirmaymiz
-          alert("O‘yin tugadi yoki mavjud emas.");
-          // leaveGame(); // olib tashlandi!
-          return;
-        }
-        board = data.board;
-        turn = data.turn;
-        winner = data.winner;
-        renderFriendGame();
-      });
-    }
-
-    window.onload = function() {
-      const params = new URLSearchParams(location.search);
-      if (params.has('game')) {
-        gameId = params.get('game');
-        playerSymbol = "O";
-        friendGameBoard(gameId);
-      } else {
-        renderHome();
-      }
-    }
-
-    // AI qismlari o‘zgarmagan
-    function showLevelSelect(){
-      document.getElementById('main').innerHTML = `
-        <h2>AI darajasini tanlang</h2>
-        <div class="level-select">
-          <button class="btn-block" onclick="startAIGame('easy')">Sodda</button>
-          <button class="btn-block" onclick="startAIGame('medium')">O‘rta</button>
-          <button class="btn-block" onclick="startAIGame('hard')">Qiyin</button>
-        </div>
-        <button class="btn-block" onclick="renderHome()">Ortga</button>
-      `;
-    }
-    function startAIGame(level){
-      mode = 'ai';
-      aiLevel = level;
-      winner = null;
-      board = [null,null,null,null,null,null,null,null,null];
-      turn = "X";
-      renderGame();
-    }
-    function renderGame() {
-      let btns = `<button class="btn-block" onclick="restartGame()">Qayta o‘ynash</button>
-                  <button class="btn-block" onclick="showLevelSelect()">Darajani o‘zgartirish</button>
-                  <button class="btn-block" onclick="renderHome()">Asosiy sahifa</button>`;
-      document.getElementById('main').innerHTML = `
-        <h2>AI bilan o‘yin</h2>
-        <div id="status" class="status">${turn} navbati</div>
-        <div class="board" id="board"></div>
-        ${btns}
-      `;
-      const boardDiv = document.getElementById('board');
-      boardDiv.innerHTML = '';
-      for (let i = 0; i < 9; i++) {
-        boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
-      }
-      updateStatus();
-      if (mode === "ai" && turn === "O" && !winner) {
-        setTimeout(aiMove, 400);
-      }
-    }
-    function move(idx){
-      if(winner || board[idx]) return;
-      if (mode === "ai") {
-        if (turn === "X") {
-          board[idx] = "X";
-          turn = "O";
-          winner = checkWinner();
-          renderGame();
-        }
-      }
-    }
-    function restartGame(){
-      winner = null;
-      board = [null,null,null,null,null,null,null,null,null];
-      turn = "X";
-      renderGame();
-    }
-    function updateStatus(){
-      let statusDiv = document.getElementById('status');
-      if(winner)
-        statusDiv.textContent = winner === 'draw' ? 'Durrang!' : `G‘olib: ${winner}`;
-      else
-        statusDiv.textContent = turn + " navbati";
-    }
-    function aiMove() {
-      if (winner) return;
-      let idx;
-      if (aiLevel === "hard") {
-        idx = aiBestMove("O");
-      } else if (aiLevel === "medium") {
-        idx = aiMediumMove();
-      } else {
-        idx = aiRandomMove();
-      }
-      if (typeof idx === "number" && board[idx] === null) {
-        board[idx] = "O";
+    function restartGame() {
+      if (mode === "local") {
+        board = Array(9).fill(null);
         turn = "X";
-        winner = checkWinner();
-        renderGame();
+        winner = null;
+        renderBoard();
+        updateStatus();
+        restartBtn.style.display = "none";
+      } else if (mode === "online" && socket) {
+        socket.emit("restart", gameId);
       }
     }
-    function aiRandomMove() {
-      let empty = [];
-      for (let i = 0; i < 9; i++) if (!board[i]) empty.push(i);
-      if (empty.length === 0) return;
-      return empty[Math.floor(Math.random() * empty.length)];
+
+    function backToMenu() {
+      if (mode === "online" && socket) {
+        socket.emit("leave", gameId);
+        socket.disconnect();
+      }
+      mode = null;
+      board = Array(9).fill(null);
+      turn = "X";
+      winner = null;
+      mySymbol = null;
+      oppSymbol = null;
+      gameId = null;
+      history.replaceState({}, '', location.pathname);
+      mainMenu.style.display = "";
+      gameDiv.style.display = "none";
+      shareBlock.innerHTML = "";
     }
-    function aiMediumMove() {
-      for (let i = 0; i < 9; i++) {
-        if (!board[i]) {
-          board[i] = "O";
-          if (checkWinner() === "O") { board[i] = null; return i; }
-          board[i] = null;
-        }
-      }
-      for (let i = 0; i < 9; i++) {
-        if (!board[i]) {
-          board[i] = "X";
-          if (checkWinner() === "X") { board[i] = null; return i; }
-          board[i] = null;
-        }
-      }
-      return aiRandomMove();
-    }
-    function aiBestMove(player) {
-      let bestScore = -Infinity;
-      let move;
-      for (let i = 0; i < 9; i++) {
-        if (!board[i]) {
-          board[i] = player;
-          let score = minimax(board, 0, false);
-          board[i] = null;
-          if (score > bestScore) {
-            bestScore = score;
-            move = i;
-          }
-        }
-      }
-      return move;
-    }
-    function minimax(bd, depth, isMax) {
-      let result = checkWinner();
-      if (result) {
-        if (result == "O") return 10 - depth;
-        if (result == "X") return depth - 10;
-        if (result == "draw") return 0;
-      }
-      if (isMax) {
-        let best = -Infinity;
-        for (let i = 0; i < 9; i++) {
-          if (!bd[i]) {
-            bd[i] = "O";
-            best = Math.max(best, minimax(bd, depth + 1, false));
-            bd[i] = null;
-          }
-        }
-        return best;
-      } else {
-        let best = Infinity;
-        for (let i = 0; i < 9; i++) {
-          if (!bd[i]) {
-            bd[i] = "X";
-            best = Math.min(best, minimax(bd, depth + 1, true));
-            bd[i] = null;
-          }
-        }
-        return best;
-      }
+
+    // Agar URL’da ?game=... bo‘lsa, avtomatik multiplayerga kirish
+    window.onload = function() {
+      let q = new URLSearchParams(location.search);
+      if (q.get("game")) startOnline();
     }
   </script>
 </body>
