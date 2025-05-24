@@ -592,17 +592,19 @@
         history.replaceState({}, '', '?game=' + gameId);
       }
       // X - doim birinchi, O - doim ikkinchi
-      // Har doim yangi o'yinga kirgan uchun: agar ?game= yo'q bo'lsa X, bo'lsa O bo'ladi
+      // Havola orqali kirganlarda havola chiqmaydi!
       if (isJoin) {
         mySymbol = "O";
         oppSymbol = "X";
         firstPlayer = "X";
-        turn = getTurnFromQuery() || "X";
+        turn = "X";
+        shareBlock.innerHTML = "";
       } else {
         mySymbol = "X";
         oppSymbol = "O";
         firstPlayer = "X";
         turn = "X";
+        showShareLink(); // faqat hostda!
       }
       mode = "online";
       mainMenu.style.display = "none";
@@ -615,15 +617,9 @@
       restartBtn.style.display = "none";
       renderBoard();
       updateStatus();
-      showShareLink();
       connectSocket();
       clearConfetti();
       setTimeout(addBtnGlowSvg, 50);
-    }
-    function getTurnFromQuery() {
-      // Agar URL-da ?turn=... bo'lsa, uni foydalaning
-      let q = new URLSearchParams(window.location.search);
-      return q.get("turn");
     }
     function showShareLink() {
       shareBlock.innerHTML = `
@@ -667,8 +663,10 @@
         if (winner && lastWinLine.length > 0) fireConfetti();
       });
       socket.on("player-joined", () => {
-        showShareLink();
-        shareBlock.innerHTML += `<div style="color:var(--neon-green);font-weight:700;margin-top:13px;">Do‘stingiz ulandi! O‘yin boshlandi.</div>`;
+        // Faqat host (X) uchun havolani o'chirib, matn chiqadi
+        if (mySymbol === "X") {
+          shareBlock.innerHTML = `<div style="color:var(--neon-green);font-weight:700;margin-top:13px;">Do‘stingiz ulandi! O‘yin boshlandi.</div>`;
+        }
       });
       socket.on("disconnect", () => {
         statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
