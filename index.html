@@ -100,33 +100,37 @@
       color:#fff;
       box-shadow: 0 0 10px #b6e5cd93;
     }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 92px);
-      gap: 14px;
-      margin: 38px auto 12px auto;
-      justify-content: center;
+    .board-wrap {
       position: relative;
-      z-index: 2;
-      filter: drop-shadow(0 2px 20px #5e6fff28);
       width: 320px;
       height: 320px;
+      margin: 38px auto 12px auto;
+    }
+    .board {
+      width: 100%; height: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 14px;
       background: none;
+      position:relative;
+      z-index: 2;
+      filter: drop-shadow(0 2px 20px #5e6fff28);
     }
     .cell {
-      width: 92px; height: 92px;
+      aspect-ratio: 1/1;
+      width: 100%; height: 100%;
       background: linear-gradient(140deg, #fff 60%, #f5eefa 100%);
       border-radius: 19px;
       font-size: 2.9em;
       font-weight: bold;
       color: var(--main-blue);
       cursor: pointer;
-      line-height: 92px;
-      box-shadow: var(--cell-shadow);
       user-select: none;
       border: 2.7px solid #c3d2f2;
-      transition: background .15s, color .13s, box-shadow .14s, border-color .13s;
       text-align:center;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .13s, box-shadow .14s, border-color .13s;
       outline: none;
       position: relative;
       z-index: 2;
@@ -141,6 +145,26 @@
       border-color: var(--main-green); 
       box-shadow: 0 0 32px #ffe68a99,0 2px 16px #bdd7ff55;
       filter: drop-shadow(0 0 16px #ffe68a77);
+    }
+    .win-line {
+      position: absolute;
+      left: 0; top: 0;
+      width: 320px; height: 320px;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .win-line-line {
+      stroke: #1fa960;
+      stroke-width: 10px;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px #ffe68a) drop-shadow(0 0 22px #fff8);
+      opacity: 0.95;
+      stroke-dasharray: 330;
+      stroke-dashoffset: 330;
+      animation: winLineAnim 0.7s cubic-bezier(.15,.8,.36,1.3) forwards;
+    }
+    @keyframes winLineAnim {
+      to { stroke-dashoffset: 0;}
     }
     .status {
       font-size: 1.21em;
@@ -185,31 +209,10 @@
       opacity: 0.97;
       text-shadow: 0 1px 0 #fff7;
     }
-    .win-line {
-      position: absolute;
-      left: 0; top: 0;
-      width: 320px; height: 320px;
-      pointer-events: none;
-      z-index: 5;
-    }
-    .win-line-line {
-      stroke: #1fa960;
-      stroke-width: 10px;
-      stroke-linecap: round;
-      filter: drop-shadow(0 0 8px #ffe68a) drop-shadow(0 0 22px #fff8);
-      opacity: 0.95;
-      stroke-dasharray: 330;
-      stroke-dashoffset: 330;
-      animation: winLineAnim 0.7s cubic-bezier(.15,.8,.36,1.3) forwards;
-    }
-    @keyframes winLineAnim {
-      to { stroke-dashoffset: 0;}
-    }
     @media (max-width:600px) {
       .container {max-width: 99vw; padding: 7vw 2vw 34vw 2vw;}
-      .board { grid-template-columns: repeat(3, 27vw); gap: 2vw; width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
-      .cell { width: 27vw; height: 27vw; font-size: 8vw; line-height: 27vw;}
-      .win-line { width: 90vw; height: 90vw; }
+      .board-wrap, .win-line {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
+      .cell {font-size:8vw;}
     }
   </style>
 </head>
@@ -225,9 +228,9 @@
     </div>
     <div id="game" style="display:none;">
       <div class="status" id="status"></div>
-      <div class="board" id="board-container" style="position:relative;">
-        <div id="win-line-svg"></div>
-        <div id="board"></div>
+      <div class="board-wrap">
+        <div id="win-line"></div>
+        <div class="board" id="board"></div>
       </div>
       <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
       <div id="share-block" class="link"></div>
@@ -257,7 +260,7 @@
     const gameDiv = document.getElementById("game");
     const statusDiv = document.getElementById("status");
     const boardDiv = document.getElementById("board");
-    const winLineSvgDiv = document.getElementById("win-line-svg");
+    const winLineDiv = document.getElementById("win-line");
     const restartBtn = document.getElementById("restartBtn");
     const shareBlock = document.getElementById("share-block");
     const confettiDiv = document.getElementById("confetti");
@@ -431,7 +434,7 @@
         let c = "cell";
         if (board[i]) c += " " + board[i].toLowerCase();
         if (lastWinLine.includes(i)) c += " win";
-        boardDiv.innerHTML += `<div class="${c}" id="cell${i}" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+        boardDiv.innerHTML += `<div class="${c}" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
       }
     }
 
@@ -609,7 +612,6 @@
 
     function drawWinLine() {
       // SVG lines for board: size 320x320 (or 90vw x 90vw on mobile)
-      let svg = "";
       let size = boardDiv.offsetWidth || 320;
       let coords = {
         row0: [ [size*0.08, size*0.17], [size*0.92, size*0.17] ],
@@ -621,13 +623,14 @@
         main: [ [size*0.09, size*0.09], [size*0.91, size*0.91] ],
         anti: [ [size*0.91, size*0.09], [size*0.09, size*0.91] ]
       };
-      if (winLineType && coords[winLineType]) {
+      let svg = "";
+      if(winLineType && coords[winLineType]) {
         let [start,end] = coords[winLineType];
         svg = `<svg class="win-line" width="${size}" height="${size}">
           <line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/>
         </svg>`;
       }
-      winLineSvgDiv.innerHTML = svg;
+      winLineDiv.innerHTML = svg;
     }
 
     function fireConfetti() {
