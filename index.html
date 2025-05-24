@@ -164,7 +164,6 @@
     const restartBtn = document.getElementById("restartBtn");
     const shareBlock = document.getElementById("share-block");
 
-    // === Funksiyalar ===
     function startLocal() {
       mode = "local";
       board = Array(9).fill(null);
@@ -221,6 +220,7 @@
       renderBoard();
       updateStatus();
       restartBtn.style.display = "none";
+      // Faqat bot navbati bo‘lsa yuradi!
       if (turn === aiSymbol) setTimeout(aiMove, 500);
     }
 
@@ -373,6 +373,7 @@
     }
 
     function restartGame() {
+      // navbat har safar o‘zgaradi
       if (mode === "local") {
         nextStarter = (nextStarter === "X" ? "O" : "X");
         board = Array(9).fill(null);
