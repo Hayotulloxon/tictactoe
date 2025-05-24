@@ -11,36 +11,27 @@
       --main-green: #1fa960;
       --main-yellow: #ffe68a;
     }
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
       min-height: 100vh;
-      min-width: 100vw;
-      background: radial-gradient(circle at 80% 10%, #ff48c7 0 18%, #ffd6e0 40%, #291a6d 100%),
-                  radial-gradient(ellipse at 0% 100%, #d2eaff 0 22%, #9be7ff 60%, #291a6d 100%),
-                  linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
-      position: relative;
+      margin: 0;
       font-family: 'Segoe UI', Arial, sans-serif;
+      background: #2b1055;
+      background-image: 
+        radial-gradient(ellipse at 80% 10%, #ff48c7 0 20%, #ffd6e0 40%, rgba(41,26,109,0.7) 100%),
+        radial-gradient(ellipse at 0% 100%, #d2eaff 0 30%, #9be7ff 60%, #291a6d 100%),
+        linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
+      position: relative;
       overflow-x: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    body::before, body::after {
-      pointer-events: none;
+    body::before {
+      content: "";
       position: fixed;
       left: 0; right: 0; top: 0; bottom: 0;
       z-index: 0;
-      content: '';
-    }
-    body::before {
       background: 
         repeating-linear-gradient(120deg,rgba(255,255,255,0.06) 0 2px,rgba(0,0,0,0) 2px 60px),
         linear-gradient(100deg,rgba(255,255,255,0.08) 5%,rgba(41,16,85,0.25) 95%);
+      pointer-events: none;
       animation: aurora-move 14s ease-in-out infinite alternate;
     }
     @keyframes aurora-move {
@@ -48,6 +39,11 @@
       100% {filter: blur(28px) hue-rotate(35deg);}
     }
     body::after {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      left: 0; right: 0; top: 0; bottom: 0;
+      z-index: 0;
       background-image: 
         repeating-radial-gradient(circle at 20% 30%, #fff9 0 0.6px, transparent 1.5px 100px),
         repeating-radial-gradient(circle at 70% 60%, #fff5 0 1.2px, transparent 2.5px 120px),
@@ -59,30 +55,18 @@
       0% {background-position: 0 0,0 0,0 0;}
       100% {background-position: 60px 40px, -80px 0px, 100px 60px;}
     }
+
     .container {
-      min-height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2vw 0 2vw 0;
-    }
-    .panel {
-      background: rgba(255,255,255,0.97);
+      margin: 7vw auto 0 auto;
+      max-width: 425px;
+      background: rgba(255,255,255,0.95);
+      padding: 38px 18px 32px 18px;
       border-radius: 28px;
       box-shadow: 0 8px 36px #0004, 0 1.5px 8px #3775dd33;
       position: relative;
       z-index: 1;
       backdrop-filter: blur(3.3px);
       border: 2.5px solid #fff8;
-      max-width: 425px;
-      width: 92vw;
-      padding: 32px 18px 30px 18px;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
     h1 {
       text-align:center;
@@ -90,7 +74,7 @@
       color: var(--main-blue);
       margin-top: 0;
       margin-bottom: 18px;
-      font-size: 2.15em;
+      font-size: 2.3em;
       font-weight: 800;
       background: linear-gradient(90deg, #fff 10%, var(--main-blue) 50%, var(--main-pink) 85%);
       -webkit-background-clip: text;
@@ -98,11 +82,11 @@
       filter: drop-shadow(0 2px 18px #fa5a7211);
       text-shadow: 0 2px 8px #fff7;
     }
-    .menu-btns { margin-bottom: 12px; width:100%;}
+    .menu-btns { margin-bottom: 16px;}
     .btn-block {
       display: block;
       width: 100%;
-      margin: 13px 0 0 0;
+      margin: 13px 0;
       padding: 16px 0;
       font-size: 1.14em;
       font-weight: 600;
@@ -118,21 +102,22 @@
       overflow: hidden;
       outline: none;
     }
-    .btn-block:active {transform: scale(.97);}
-    .btn-block:hover { 
+    .btn-block:active {
+      transform: scale(.97);
+      box-shadow: 0 1px 6px #3775dd11;
+    }
+    .btn-block:hover, #copyBtn:hover { 
       background: linear-gradient(90deg, var(--main-pink) 0%, var(--main-blue) 100%);
       transform: translateY(-1px) scale(1.04);
       box-shadow: 0 6px 26px #fa5a7240;
     }
     .ai-levels {
-      display:flex;
-      flex-direction:column;
-      gap:22px;
-      justify-content:center;
-      align-items:center;
-      margin: 30px 0 20px 0;
-      padding: 0 0 8px 0;
-      width: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin-top: 30px;
+      margin-bottom: 10px;
     }
     .ai-level-btn {
       width: 90%;
@@ -154,24 +139,13 @@
       box-shadow: 0 6px 26px #fa5a7240;
       transform: scale(1.05);
     }
-    .board-outer {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      min-height: 320px;
-    }
     .board-wrap {
       position: relative;
       width: 320px; height: 320px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin: 34px auto 0 auto;
     }
     .board {
-      width: 320px; height: 320px;
+      width: 100%; height: 100%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
@@ -231,7 +205,7 @@
       to { stroke-dashoffset: 0;}
     }
     .status {
-      font-size: 1.17em;
+      font-size: 1.21em;
       margin: 18px 0 10px 0;
       font-weight: 700;
       letter-spacing: .5px;
@@ -242,7 +216,7 @@
       filter: drop-shadow(0 1px 6px #fff6);
     }
     .footer {
-      margin: 24px 0 0 0;
+      margin: 27px 0 0 0;
       color: #b7b7b7;
       font-size: 1.01em;
       letter-spacing: 0.2px;
@@ -251,9 +225,8 @@
       text-shadow: 0 1px 0 #fff7;
     }
     @media (max-width:600px) {
-      .container {max-width: 99vw;}
-      .panel {max-width:99vw; padding: 6vw 2vw 8vw 2vw;}
-      .board-outer, .board-wrap, .win-line, .board {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
+      .container {max-width: 99vw; padding: 7vw 2vw 24vw 2vw;}
+      .board-wrap, .win-line {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
       .cell {font-size:8vw;}
       .ai-level-btn {padding: 6vw 0; font-size: 1.2em;}
     }
@@ -261,209 +234,197 @@
 </head>
 <body>
   <div class="container">
-    <div class="panel">
-      <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
-      <div id="main-menu">
-        <div class="menu-btns" id="main-menu-btns">
-          <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
-          <button class="btn-block" onclick="showAIlevels()">AI (bot) bilan o‘ynash</button>
-          <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
-        </div>
-        <div class="ai-levels" id="ai-levels" style="display:none;">
-          <button class="ai-level-btn" onclick="startAI('easy')" id="ai-easy">Oson</button>
-          <button class="ai-level-btn" onclick="startAI('medium')" id="ai-medium">O‘rta</button>
-          <button class="ai-level-btn" onclick="startAI('hard')" id="ai-hard">Qiyin</button>
-        </div>
+    <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
+    <div id="main-menu">
+      <div class="menu-btns" id="main-menu-btns">
+        <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
+        <button class="btn-block" onclick="showAIlevels()">AI (bot) bilan o‘ynash</button>
+        <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
       </div>
-      <div id="game" style="display:none; width:100%;">
-        <div class="status" id="status"></div>
-        <div class="board-outer">
-          <div class="board-wrap">
-            <div id="win-line"></div>
-            <div class="board" id="board"></div>
-          </div>
-        </div>
-        <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
-        <div id="share-block" class="link"></div>
-        <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
+      <div class="ai-levels" id="ai-levels">
+        <button class="ai-level-btn" onclick="startAI('easy')" id="ai-easy">Oson</button>
+        <button class="ai-level-btn" onclick="startAI('medium')" id="ai-medium">O‘rta</button>
+        <button class="ai-level-btn" onclick="startAI('hard')" id="ai-hard">Qiyin</button>
       </div>
-      <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
-      <div class="confetti" id="confetti"></div>
     </div>
+    <div id="game" style="display:none;">
+      <div class="status" id="status"></div>
+      <div class="board-wrap">
+        <div id="win-line"></div>
+        <div class="board" id="board"></div>
+      </div>
+      <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
+      <div id="share-block" class="link"></div>
+      <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
+    </div>
+    <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
+    <div class="confetti" id="confetti"></div>
   </div>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
-    let board = Array(9).fill(null), turn="X", winner=null, lastWinLine=[], winLineType="";
-    let mode = null, aiSymbol = "O", humanSymbol = "X", aiLevel = "easy";
-    const boardDiv=document.getElementById("board"), statusDiv=document.getElementById("status");
-    const winLineDiv=document.getElementById("win-line"), restartBtn=document.getElementById("restartBtn");
+    // ... qolgan kodlar o'zgarmaydi ...
+    const backendUrl = "https://tictactoebackend-eh25.onrender.com";
+    let mode = null;
+    let board = Array(9).fill(null);
+    let turn = "X";
+    let winner = null;
+    let mySymbol = null;
+    let oppSymbol = null;
+    let gameId = null;
+    let socket = null;
+    let aiSymbol = null;
+    let humanSymbol = null;
+    let isHumanFirst = false;
+    let lastWinLine = [];
+    let winLineType = "";
+    let aiName = "🤖 Bot";
+    let aiLevel = 'easy';
     const mainMenu = document.getElementById("main-menu");
     const mainMenuBtns = document.getElementById("main-menu-btns");
+    const aiLevelsDiv = document.getElementById("ai-levels");
     const gameDiv = document.getElementById("game");
-    const aiLevels = document.getElementById("ai-levels");
+    const statusDiv = document.getElementById("status");
+    const boardDiv = document.getElementById("board");
+    const winLineDiv = document.getElementById("win-line");
+    const restartBtn = document.getElementById("restartBtn");
+    const shareBlock = document.getElementById("share-block");
+    const confettiDiv = document.getElementById("confetti");
+
     function showAIlevels() {
       mainMenuBtns.style.display = "none";
-      aiLevels.style.display = "flex";
+      aiLevelsDiv.style.display = "flex";
     }
+
     function startAI(level) {
-      mode="ai"; aiLevel=level; winner=null; lastWinLine=[]; winLineType="";
-      mainMenu.style.display="none";
-      aiLevels.style.display="none";
-      gameDiv.style.display="";
-      board=Array(9).fill(null); turn=humanSymbol="X"; aiSymbol="O";
-      renderBoard(); updateStatus(); drawWinLine(); restartBtn.style.display="none";
-      document.getElementById("ai-easy").classList.remove("selected");
-      document.getElementById("ai-medium").classList.remove("selected");
-      document.getElementById("ai-hard").classList.remove("selected");
-      document.getElementById("ai-" + level).classList.add("selected");
+      aiLevel = level;
+      mode = "ai";
+      board = Array(9).fill(null);
+      winner = null;
+      isHumanFirst = false;
+      humanSymbol = "X";
+      aiSymbol = "O";
+      turn = "X";
+      lastWinLine = [];
+      winLineType = "";
+      mainMenu.style.display = "none";
+      aiLevelsDiv.style.display = "none";
+      gameDiv.style.display = "";
+      renderBoard();
+      updateStatus();
+      restartBtn.style.display = "none";
+      clearConfetti();
+      drawWinLine();
+      if (turn === aiSymbol) setTimeout(aiMove, 500);
     }
+
     function startLocal() {
-      mode="local"; winner=null; lastWinLine=[]; winLineType="";
-      mainMenu.style.display="none";
-      aiLevels.style.display="none";
-      gameDiv.style.display="";
-      board=Array(9).fill(null); turn="X";
-      renderBoard(); updateStatus(); drawWinLine(); restartBtn.style.display="none";
+      mode = "local";
+      board = Array(9).fill(null);
+      turn = "X";
+      winner = null;
+      mySymbol = null;
+      oppSymbol = null;
+      lastWinLine = [];
+      winLineType = "";
+      mainMenu.style.display = "none";
+      aiLevelsDiv.style.display = "none";
+      mainMenuBtns.style.display = "";
+      shareBlock.innerHTML = "";
+      gameDiv.style.display = "";
+      renderBoard();
+      updateStatus();
+      restartBtn.style.display = "none";
+      clearConfetti();
+      drawWinLine();
     }
+
     function startOnline() {
       alert("Onlayn multiplayer uchun backend kerak va demo emas.");
     }
-    function renderBoard() {
-      boardDiv.innerHTML="";
-      for(let i=0;i<9;i++) {
-        let c="cell";
-        if(board[i]) c+=" "+board[i].toLowerCase();
-        if(lastWinLine.includes(i)) c+=" win";
-        boardDiv.innerHTML+=`<div class="${c}" onclick="move(${i})">${board[i]||""}</div>`;
+
+    // ... qolgan kodlar o'zgarmaydi ...
+    function move(idx) {
+      if (board[idx] || winner) return;
+      if (mode === "local") {
+        board[idx] = turn;
+        winner = checkWinner();
+        let found = findWinLine(board,true);
+        lastWinLine = found.line;
+        winLineType = found.type;
+        turn = turn === "X" ? "O" : "X";
+        renderBoard();
+        updateStatus();
+        if (winner) {
+          restartBtn.style.display = "";
+          if (lastWinLine.length > 0) fireConfetti();
+        }
+        drawWinLine();
+      } else if (mode === "ai") {
+        if (turn !== humanSymbol || winner) return;
+        board[idx] = humanSymbol;
+        winner = checkWinner();
+        let found = findWinLine(board,true);
+        lastWinLine = found.line;
+        winLineType = found.type;
+        turn = aiSymbol;
+        renderBoard();
+        updateStatus();
+        if (winner) {
+          restartBtn.style.display = "";
+          if (lastWinLine.length > 0) fireConfetti();
+        }
+        drawWinLine();
+        if (!winner) setTimeout(aiMove, 520);
       }
     }
-    function updateStatus() {
-      if(mode==="local") {
-        if(winner) statusDiv.textContent=winner==="draw"?"Durrang!":`G‘olib: ${winner}`;
-        else statusDiv.textContent=`Navbat: ${turn}`;
-      } else if(mode==="ai") {
-        if(winner) statusDiv.textContent=winner==="draw"?"Durrang!":(winner===humanSymbol?"Siz yutdingiz!":"Bot yutdi!");
-        else statusDiv.textContent=turn===humanSymbol?"Sizning navbatingiz":"Bot navbati...";
-      }
-    }
-    function checkWinner() {
-      const lines=[
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ], types=["row0","row1","row2","col0","col1","col2","main","anti"];
-      for(let i=0;i<lines.length;i++){
-        let [a,b,c]=lines[i];
-        if(board[a]&&board[a]===board[b]&&board[a]===board[c]){winLineType=types[i]; return board[a];}
-      }
-      winLineType="";
-      if(board.every(Boolean)) return "draw";
-      return null;
-    }
-    function findWinLine(){
-      const map=[
-        {line:[0,1,2],type:"row0"},{line:[3,4,5],type:"row1"},{line:[6,7,8],type:"row2"},
-        {line:[0,3,6],type:"col0"},{line:[1,4,7],type:"col1"},{line:[2,5,8],type:"col2"},
-        {line:[0,4,8],type:"main"},{line:[2,4,6],type:"anti"}
-      ];
-      for(let m of map){
-        let [a,b,c]=m.line;
-        if(board[a]&&board[a]===board[b]&&board[a]===board[c])return {line:m.line,type:m.type};
-      }
-      return {line:[],type:""};
-    }
-    function drawWinLine() {
-      let size=boardDiv.offsetWidth||320;
-      let coords={
-        row0:[[size*0.08,size*0.17],[size*0.92,size*0.17]],
-        row1:[[size*0.08,size*0.5],[size*0.92,size*0.5]],
-        row2:[[size*0.08,size*0.83],[size*0.92,size*0.83]],
-        col0:[[size*0.17,size*0.08],[size*0.17,size*0.92]],
-        col1:[[size*0.5,size*0.08],[size*0.5,size*0.92]],
-        col2:[[size*0.83,size*0.08],[size*0.83,size*0.92]],
-        main:[[size*0.09,size*0.09],[size*0.91,size*0.91]],
-        anti:[[size*0.91,size*0.09],[size*0.09,size*0.91]]
-      };
-      let svg="";
-      if(winLineType&&coords[winLineType]){
-        let [start,end]=coords[winLineType];
-        svg=`<svg class="win-line" width="${size}" height="${size}"><line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/></svg>`;
-      }
-      winLineDiv.innerHTML=svg;
-    }
-    function move(idx){
-      if(board[idx]||winner) return;
-      if(mode==="local") {
-        board[idx]=turn;
-        winner=checkWinner();
-        let found=findWinLine();
-        lastWinLine=found.line; winLineType=found.type;
-        turn=turn==="X"?"O":"X";
-        renderBoard(); updateStatus(); drawWinLine();
-        if(winner) restartBtn.style.display="";
-      }
-      else if(mode==="ai") {
-        if(turn!==humanSymbol) return;
-        board[idx]=humanSymbol;
-        winner=checkWinner();
-        let found=findWinLine();
-        lastWinLine=found.line; winLineType=found.type;
-        turn=aiSymbol;
-        renderBoard(); updateStatus(); drawWinLine();
-        if(winner) {restartBtn.style.display=""; return;}
-        setTimeout(aiMove, 500);
-      }
-    }
-    // AI with 3 levels: easy - random; medium - block/win; hard - minimax
+
     function aiMove() {
-      if(winner) return;
-      let idx;
-      if(aiLevel==="easy") {
-        let empties = [];
-        for(let i=0;i<9;i++) if(!board[i]) empties.push(i);
-        idx = empties[Math.floor(Math.random()*empties.length)];
-      } else if(aiLevel==="medium") {
-        idx = findBestMoveMedium(aiSymbol, humanSymbol);
-        if(idx===-1) {
-          let empties = [];
-          for(let i=0;i<9;i++) if(!board[i]) empties.push(i);
-          idx = empties[Math.floor(Math.random()*empties.length)];
+      if (winner || turn !== aiSymbol) return;
+      let moveIdx;
+      if (aiLevel === 'easy') {
+        let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
+        moveIdx = empties[Math.floor(Math.random() *empties.length)];
+      } else if (aiLevel === 'medium') {
+        moveIdx = findBestMove(board, aiSymbol, humanSymbol);
+        if (moveIdx === -1) {
+          let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
+          moveIdx = empties[Math.floor(Math.random() *empties.length)];
         }
-      } else { // hard
-        idx = findBestMoveHard();
+      } else {
+        moveIdx = minimaxMove();
       }
-      board[idx]=aiSymbol;
-      winner=checkWinner();
-      let found=findWinLine();
-      lastWinLine=found.line; winLineType=found.type;
-      turn=humanSymbol;
-      renderBoard(); updateStatus(); drawWinLine();
-      if(winner) restartBtn.style.display="";
+      board[moveIdx] = aiSymbol;
+      winner = checkWinner();
+      let found = findWinLine(board,true);
+      lastWinLine = found.line;
+      winLineType = found.type;
+      turn = humanSymbol;
+      renderBoard();
+      updateStatus();
+      if (winner) {
+        restartBtn.style.display = "";
+        if (lastWinLine.length > 0) fireConfetti();
+      }
+      drawWinLine();
+      if (!winner && turn === aiSymbol) setTimeout(aiMove, 520);
     }
-    function findBestMoveMedium(ai, human) {
-      // Win
-      for(let i=0;i<9;i++) {
-        if(!board[i]) {
-          board[i]=ai;
-          if(checkWinner()===ai) {board[i]=null; return i;}
-          board[i]=null;
+
+    function minimaxMove() {
+      function checkWinnerMini(b, symbol) {
+        const lines = [
+          [0,1,2],[3,4,5],[6,7,8],
+          [0,3,6],[1,4,7],[2,5,8],
+          [0,4,8],[2,4,6]
+        ];
+        for (let l of lines) {
+          const [a,b1,c] = l;
+          if (b[a] === symbol && b[b1] === symbol && b[c] === symbol) return symbol;
         }
+        return null;
       }
-      // Block
-      for(let i=0;i<9;i++) {
-        if(!board[i]) {
-          board[i]=human;
-          if(checkWinner()===human) {board[i]=null; return i;}
-          board[i]=null;
-        }
-      }
-      if(!board[4]) return 4; // center
-      return -1;
-    }
-    function findBestMoveHard() {
-      // Minimax (simple, for TicTacToe)
       function minimax(b, player) {
-        let winnerX = checkWinnerBoard(b, "X");
-        let winnerO = checkWinnerBoard(b, "O");
+        let winnerX = checkWinnerMini(b, "X");
+        let winnerO = checkWinnerMini(b, "O");
         if(winnerX) return {score: -1};
         if(winnerO) return {score: 1};
         if(b.every(Boolean)) return {score: 0};
@@ -489,38 +450,174 @@
         }
       }
       let bestMove = minimax([...board], aiSymbol);
-      return bestMove && bestMove.idx!==undefined ? bestMove.idx : findBestMoveMedium(aiSymbol, humanSymbol);
+      return bestMove && bestMove.idx!==undefined ? bestMove.idx : findBestMove(board, aiSymbol, humanSymbol);
     }
-    function checkWinnerBoard(b, symbol) {
-      const lines=[
+
+    function findBestMove(b, ai, human) {
+      for (let i = 0; i < 9; i++) {
+        if (!b[i]) {
+          b[i] = ai;
+          if (checkWinner() === ai) { b[i] = null; return i; }
+          b[i] = null;
+        }
+      }
+      for (let i = 0; i < 9; i++) {
+        if (!b[i]) {
+          b[i] = human;
+          if (checkWinner() === human) { b[i] = null; return i; }
+          b[i] = null;
+        }
+      }
+      if (!b[4]) return 4;
+      return -1;
+    }
+
+    function renderBoard() {
+      boardDiv.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        let c = "cell";
+        if (board[i]) c += " " + board[i].toLowerCase();
+        if (lastWinLine.includes(i)) c += " win";
+        boardDiv.innerHTML += `<div class="${c}" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+      }
+    }
+
+    function updateStatus() {
+      if (mode === "local") {
+        if (winner)
+          statusDiv.textContent = winner === "draw" ? "Durrang!" : `G‘olib: ${winner}`;
+        else
+          statusDiv.textContent = `Navbat: ${turn}`;
+      } else if (mode === "ai") {
+        if (winner) {
+          if (winner === humanSymbol) {
+            statusDiv.textContent = "Siz yutdingiz! 🎉";
+          } else if (winner === aiSymbol) {
+            statusDiv.textContent = aiName + " yutdi!";
+          } else {
+            statusDiv.textContent = "Durrang!";
+          }
+        } else if (turn === humanSymbol) {
+          statusDiv.textContent = "Sizning navbatingiz";
+        } else {
+          statusDiv.textContent = aiName + " navbati...";
+        }
+      }
+    }
+
+    function checkWinner() {
+      const lines = [
         [0,1,2],[3,4,5],[6,7,8],
         [0,3,6],[1,4,7],[2,5,8],
         [0,4,8],[2,4,6]
       ];
-      for(let i=0;i<lines.length;i++){
-        let [a,b1,c]=lines[i];
-        if(b[a]===symbol&&b[b1]===symbol&&b[c]===symbol) return symbol;
+      for (let l of lines) {
+        const [a,b,c] = l;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
       }
+      if (board.every(Boolean)) return 'draw';
       return null;
     }
+
+    function findWinLine(b,withType) {
+      const map = [
+        { line: [0,1,2], type: "row0" }, { line: [3,4,5], type: "row1" }, { line: [6,7,8], type: "row2" },
+        { line: [0,3,6], type: "col0" }, { line: [1,4,7], type: "col1" }, { line: [2,5,8], type: "col2" },
+        { line: [0,4,8], type: "main" }, { line: [2,4,6], type: "anti" }
+      ];
+      for (let m of map) {
+        const [a,b,c] = m.line;
+        if (b[a] && b[a] === b[b] && b[a] === b[c]) return withType ? m : m.line;
+      }
+      return withType ? {line:[],type:""} : [];
+    }
+
     function restartGame() {
-      board=Array(9).fill(null); winner=null; lastWinLine=[]; winLineType="";
-      if(mode==="ai") { turn=humanSymbol="X"; aiSymbol="O"; }
-      else { turn="X"; }
-      renderBoard();updateStatus();drawWinLine();restartBtn.style.display="none";
+      if (mode === "local") {
+        board = Array(9).fill(null);
+        turn = "X";
+        winner = null;
+        lastWinLine = [];
+        winLineType = "";
+        renderBoard();
+        updateStatus();
+        restartBtn.style.display = "none";
+        clearConfetti();
+        drawWinLine();
+      } else if (mode === "ai") {
+        isHumanFirst = !isHumanFirst;
+        board = Array(9).fill(null);
+        winner = null;
+        if (isHumanFirst) {
+          humanSymbol = "X";
+          aiSymbol = "O";
+          turn = "X";
+        } else {
+          humanSymbol = "O";
+          aiSymbol = "X";
+          turn = "X";
+        }
+        lastWinLine = [];
+        winLineType = "";
+        renderBoard();
+        updateStatus();
+        restartBtn.style.display = "none";
+        clearConfetti();
+        drawWinLine();
+        if (turn === aiSymbol) setTimeout(aiMove, 500);
+      }
     }
+
     function backToMenu() {
-      mode=null; winner=null;
-      gameDiv.style.display="none";
-      mainMenu.style.display="";
-      aiLevels.style.display="none";
+      mode = null;
+      board = Array(9).fill(null);
+      turn = "X";
+      winner = null;
+      mySymbol = null;
+      oppSymbol = null;
+      gameId = null;
+      lastWinLine = [];
+      winLineType = "";
+      history.replaceState({}, '', location.pathname);
+      mainMenu.style.display = "";
+      aiLevelsDiv.style.display = "none";
       mainMenuBtns.style.display = "";
+      gameDiv.style.display = "none";
+      shareBlock.innerHTML = "";
+      isHumanFirst = false;
+      clearConfetti();
+      drawWinLine();
     }
-    window.onload=function(){
-      renderBoard();updateStatus();drawWinLine();
-      document.getElementById("year").textContent=new Date().getFullYear();
+
+    function fireConfetti() {
+      clearConfetti();
+      const colors = [
+        "var(--main-blue)", "var(--main-pink)", "var(--main-green)", "#ffd700", "#f7971e", "#7c77b9", "#fff"
+      ];
+      const pieces = 54;
+      for(let i=0;i<pieces;i++) {
+        let conf = document.createElement("div");
+        conf.className = "confetti-piece";
+        conf.style.background = colors[Math.floor(Math.random()*colors.length)];
+        conf.style.left = (Math.random()*100) + "vw";
+        conf.style.top = (-2-Math.random()*4) + "vh";
+        conf.style.opacity = Math.random()*0.5 + 0.5;
+        conf.style.transform = `rotate(${Math.random()*360}deg)`;
+        confettiDiv.appendChild(conf);
+      }
+      setTimeout(clearConfetti, 2500);
     }
-    window.addEventListener("resize",drawWinLine);
+    function clearConfetti() {
+      confettiDiv.innerHTML = "";
+    }
+
+    window.onload = function() {
+      let q = new URLSearchParams(location.search);
+      if (q.get("game")) startOnline();
+      document.getElementById("year").textContent = new Date().getFullYear();
+      aiLevelsDiv.style.display = "none";
+    }
+    window.addEventListener("resize", drawWinLine);
   </script>
 </body>
 </html>
