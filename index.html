@@ -152,7 +152,7 @@
     let socket = null;
     let aiSymbol = null;
     let humanSymbol = null;
-    let nextStarter = "X";
+    let nextIsHumanFirst = true; // <<=== BU O'ZGARUVCHI NAVBATNI NAZORAT QILADI
     let lastWinLine = [];
     let aiName = "🤖 Bot";
 
@@ -167,7 +167,7 @@
     function startLocal() {
       mode = "local";
       board = Array(9).fill(null);
-      turn = nextStarter;
+      turn = "X";
       winner = null;
       mySymbol = null;
       oppSymbol = null;
@@ -183,21 +183,22 @@
     function startOnline() {
       let q = new URLSearchParams(location.search);
       gameId = q.get("game");
+      let first = "X";
       if (!gameId) {
         gameId = Math.random().toString(36).slice(2,10);
-        mySymbol = nextStarter;
-        oppSymbol = nextStarter === "X" ? "O" : "X";
+        mySymbol = first;
+        oppSymbol = first === "X" ? "O" : "X";
         history.replaceState({}, '', '?game=' + gameId);
         showShareLink();
       } else {
-        mySymbol = nextStarter === "X" ? "O" : "X";
-        oppSymbol = nextStarter;
+        mySymbol = "O";
+        oppSymbol = "X";
       }
       mode = "online";
       mainMenu.style.display = "none";
       gameDiv.style.display = "";
       board = Array(9).fill(null);
-      turn = nextStarter;
+      turn = "X";
       winner = null;
       lastWinLine = [];
       restartBtn.style.display = "none";
@@ -210,9 +211,16 @@
       mode = "ai";
       board = Array(9).fill(null);
       winner = null;
-      aiSymbol = nextStarter;
-      humanSymbol = nextStarter === "X" ? "O" : "X";
-      turn = nextStarter;
+      // NAVBAT: kim birinchi yuradi va u X bo'ladimi yoki O
+      if (nextIsHumanFirst) {
+        humanSymbol = "X";
+        aiSymbol = "O";
+        turn = "X";
+      } else {
+        humanSymbol = "O";
+        aiSymbol = "X";
+        turn = "X";
+      }
       lastWinLine = [];
       mainMenu.style.display = "none";
       shareBlock.innerHTML = "";
@@ -262,7 +270,7 @@
         if (winner) restartBtn.style.display = "";
       });
       socket.on("player-joined", () => {
-        if (mySymbol === nextStarter) {
+        if (mySymbol === "X") {
           shareBlock.innerHTML = '<span class="me">Do‘stingiz ulandi! O‘yin boshlandi.</span>';
         }
       });
@@ -375,9 +383,9 @@
     function restartGame() {
       // navbat har safar o‘zgaradi
       if (mode === "local") {
-        nextStarter = (nextStarter === "X" ? "O" : "X");
+        // Lokal rejimda X/O almashsin
         board = Array(9).fill(null);
-        turn = nextStarter;
+        turn = "X";
         winner = null;
         lastWinLine = [];
         renderBoard();
@@ -386,12 +394,19 @@
       } else if (mode === "online" && socket) {
         socket.emit("restart", gameId);
       } else if (mode === "ai") {
-        nextStarter = (nextStarter === "X" ? "O" : "X");
+        // AI REJIMI: kim birinchi yuradi har safar navbat bilan OZGARADI!
+        nextIsHumanFirst = !nextIsHumanFirst;
         board = Array(9).fill(null);
         winner = null;
-        aiSymbol = nextStarter;
-        humanSymbol = nextStarter === "X" ? "O" : "X";
-        turn = nextStarter;
+        if (nextIsHumanFirst) {
+          humanSymbol = "X";
+          aiSymbol = "O";
+          turn = "X";
+        } else {
+          humanSymbol = "O";
+          aiSymbol = "X";
+          turn = "X";
+        }
         lastWinLine = [];
         renderBoard();
         updateStatus();
@@ -417,6 +432,7 @@
       mainMenu.style.display = "";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
+      nextIsHumanFirst = true; // qayta menyuga chiqqanda default
     }
 
     function aiMove() {
