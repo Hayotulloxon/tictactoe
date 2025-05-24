@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+setTimeout(clear<!DOCTYPE html>
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
@@ -10,124 +10,147 @@
       --main-pink: #fa5a72;
       --main-green: #1fa960;
       --main-yellow: #ffe68a;
-      --main-bg1: #e3eefe;
-      --main-bg2: #efddfb;
-      --cell-shadow: 0 2px 12px #bdd7ff55;
-      --panel-shadow: 0 6px 36px #bdd7ff60, 0 1.5px 6px #0002;
+      --main-bg1: #291a6d;
+      --main-bg2: #ff48c7;
+      --main-bg3: #ffd6e0;
+      --cell-shadow: 0 2px 16px #5e6fff99;
+      --panel-shadow: 0 8px 36px #0004, 0 1.5px 8px #3775dd33;
     }
     body {
       font-family: 'Segoe UI', 'Arial', sans-serif;
-      background: linear-gradient(135deg, var(--main-bg1) 0%, var(--main-bg2) 100%);
       min-height: 100vh;
       margin: 0;
       overflow-x: hidden;
+      background: radial-gradient(ellipse at 70% 40%, var(--main-bg2) 0 30%, #ffb1ff 60%, var(--main-bg1) 100%),
+                  radial-gradient(ellipse at 0% 100%, var(--main-bg3) 0 33%, #9be7ff 70%, #291a6d 100%),
+                  linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
+      animation: bgmove 24s linear infinite alternate;
+    }
+    @keyframes bgmove {
+      0% { background-position: 100% 0, 0 100%, 0 0;}
+      100% { background-position: 0 0, 100% 0, 100% 100%;}
     }
     .container {
-      margin: 5vw auto;
-      max-width: 410px;
-      background: #fff;
-      padding: 34px 18px 40px 18px;
-      border-radius: 22px;
+      margin: 6vw auto;
+      max-width: 425px;
+      background: rgba(255,255,255,0.90);
+      padding: 38px 18px 40px 18px;
+      border-radius: 24px;
       box-shadow: var(--panel-shadow);
       position: relative;
       z-index: 1;
+      backdrop-filter: blur(3px);
+      border: 2.5px solid #fff8;
     }
     h1 {
       letter-spacing: 1.5px;
       color: var(--main-blue);
       margin-top: 0;
       margin-bottom: 18px;
-      font-size: 2.2em;
-      font-weight: 700;
-      background: linear-gradient(90deg, var(--main-blue) 60%, var(--main-pink) 100%);
+      font-size: 2.35em;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff 10%, var(--main-blue) 50%, var(--main-pink) 85%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 18px #fa5a7211);
+      text-shadow: 0 2px 8px #fff7;
     }
-    .menu-btns { margin-bottom: 12px;}
+    .menu-btns { margin-bottom: 16px;}
     .btn-block {
       display: block;
       width: 100%;
-      margin: 10px 0;
-      padding: 15px 0;
-      font-size: 1.12em;
-      font-weight: 500;
+      margin: 13px 0;
+      padding: 16px 0;
+      font-size: 1.14em;
+      font-weight: 600;
       border: none;
-      border-radius: 11px;
-      background: linear-gradient(90deg, var(--main-blue) 60%, var(--main-pink) 100%);
+      border-radius: 13px;
+      background: linear-gradient(90deg, var(--main-blue) 0%, var(--main-pink) 100%);
       color: #fff;
-      box-shadow: 0 1px 5px #3775dd20;
+      box-shadow: 0 2px 12px #3775dd26;
       cursor: pointer;
       letter-spacing: 0.5px;
-      transition: background .18s, box-shadow .18s, transform .13s;
+      transition: background .17s, box-shadow .16s, transform .14s;
+      position: relative;
+      overflow: hidden;
+      outline: none;
+    }
+    .btn-block:active {
+      transform: scale(.97);
+      box-shadow: 0 1px 6px #3775dd11;
     }
     .btn-block:hover, #copyBtn:hover { 
-      background: linear-gradient(90deg, var(--main-pink) 30%, var(--main-blue) 100%);
-      transform: translateY(-1px) scale(1.025);
-      box-shadow: 0 4px 16px #d2e3ff40;
+      background: linear-gradient(90deg, var(--main-pink) 0%, var(--main-blue) 100%);
+      transform: translateY(-1px) scale(1.04);
+      box-shadow: 0 6px 26px #fa5a7240;
     }
     #copyBtn {
       display:inline-block;
-      margin-left:5px;
-      padding:4px 16px;
+      margin-left:7px;
+      padding:6px 18px;
       font-size:1em;
       border:none;
-      border-radius:7px;
+      border-radius:8px;
       background:linear-gradient(90deg,var(--main-blue) 60%,var(--main-pink) 100%);
       color:#fff; cursor:pointer;
-      transition:background .17s, box-shadow .17s;
+      transition:background .19s, box-shadow .16s;
     }
     #copyBtn.copied {
       background:linear-gradient(90deg,var(--main-green) 60%,#64e39f 100%);
       color:#fff;
-      box-shadow: 0 0 8px #b6e5cd60;
+      box-shadow: 0 0 10px #b6e5cd93;
     }
     .board {
       display: grid;
-      grid-template-columns: repeat(3, 86px);
-      gap: 12px;
-      margin: 32px auto 10px auto;
+      grid-template-columns: repeat(3, 92px);
+      gap: 14px;
+      margin: 38px auto 12px auto;
       justify-content: center;
       position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 2px 20px #5e6fff28);
     }
     .cell {
-      width: 86px; height: 86px;
-      background: #f5f9ff;
-      border-radius: 17px;
-      font-size: 2.7em;
+      width: 92px; height: 92px;
+      background: linear-gradient(140deg, #fff 60%, #f5eefa 100%);
+      border-radius: 19px;
+      font-size: 2.9em;
       font-weight: bold;
       color: var(--main-blue);
       cursor: pointer;
-      line-height: 86px;
+      line-height: 92px;
       box-shadow: var(--cell-shadow);
       user-select: none;
-      border: 2.5px solid #b4c6d8;
-      transition: background .17s, color .14s, box-shadow .13s, border-color .13s, transform .13s;
+      border: 2.7px solid #c3d2f2;
+      transition: background .15s, color .13s, box-shadow .14s, border-color .13s, transform .15s;
       text-align:center;
       outline: none;
       position: relative;
       z-index: 2;
       overflow: visible;
+      filter: drop-shadow(0 0px 16px #fff5);
     }
-    .cell:hover { background:#e9f1ff; border-color: var(--main-blue);}
+    .cell:hover { background: #f2ebff; border-color: var(--main-blue);}
     .cell.x { color: var(--main-blue);}
     .cell.o { color: var(--main-pink);}
     .cell.win { 
-      background: var(--main-yellow); 
+      background: linear-gradient(120deg, #fffed9 60%, #ffe68a 100%);
       color: var(--main-green); 
       border-color: var(--main-green); 
       animation: winPop .38s cubic-bezier(.12,1.32,.91,1.05) both;
-      box-shadow: 0 0 26px #ffe68a85,0 2px 12px #bdd7ff55;
+      box-shadow: 0 0 32px #ffe68a99,0 2px 16px #bdd7ff55;
+      filter: drop-shadow(0 0 16px #ffe68a77);
     }
-    .cell.animated { animation: movePop .24s cubic-bezier(.17,1.74,.53,.98) both;}
+    .cell.animated { animation: movePop .33s cubic-bezier(.17,1.74,.53,.98) both;}
     @keyframes movePop {
-      0% { transform: scale(.2) rotate(-20deg); filter:blur(2px);}
-      50% {transform: scale(1.15) rotate(8deg);}
+      0% { transform: scale(.15) rotate(-26deg); filter:blur(3px);}
+      60% {transform: scale(1.19) rotate(8deg);}
       100% {transform: scale(1) rotate(0deg);}
     }
     @keyframes winPop {
       0% { box-shadow: 0 0 0 #ffe68a00;  }
-      60% { box-shadow: 0 0 28px #ffe68a85,0 2px 12px #bdd7ff55;}
-      100% { box-shadow: 0 0 26px #ffe68a85,0 2px 12px #bdd7ff55;}
+      70% { box-shadow: 0 0 42px #ffe68a99,0 2px 16px #bdd7ff55;}
+      100% { box-shadow: 0 0 32px #ffe68a99,0 2px 16px #bdd7ff55;}
     }
     .confetti {
       pointer-events:none;
@@ -136,60 +159,72 @@
       z-index: 9999;
       overflow: visible;
       pointer-events:none;
+      pointer-events: none;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 12px; height: 22px;
+      border-radius: 3px;
+      opacity: 0.85;
+      will-change: transform;
+      z-index: 10000;
+      box-shadow: 0 2px 6px #0004;
+      filter: brightness(1.13) drop-shadow(0 0 10px #fff7);
+      animation: confetti-fall 2.3s cubic-bezier(.3,.58,.47,1.2) forwards;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-12vh) scale(1) rotate(0deg);}
+      80% { filter:brightness(1.13) drop-shadow(0 0 10px #fff7);}
+      90% { filter:brightness(1.22) drop-shadow(0 0 20px #fff9);}
+      100% { transform: translateY(110vh) scale(.8) rotate(360deg);}
     }
     .status {
-      font-size: 1.18em;
-      margin: 15px 0 8px 0;
-      font-weight: bold;
+      font-size: 1.21em;
+      margin: 18px 0 10px 0;
+      font-weight: 700;
       letter-spacing: .5px;
-      min-height: 20px;
-      color: #333;
+      min-height: 23px;
+      color: #21213a;
       text-shadow: 0 1px 0 #fff2;
       text-align:center;
+      filter: drop-shadow(0 1px 6px #fff6);
     }
     .status .me {
-      color:var(--main-green); font-weight:bold;
+      color:var(--main-green); font-weight:900;
     }
     .status .wait {
-      color:var(--main-pink); font-weight:bold;
+      color:var(--main-pink); font-weight:900;
     }
-    .link {margin:13px 0; color: var(--main-blue); font-size:1em;}
+    .link {margin:14px 0; color: var(--main-blue); font-size:1em; font-weight:500;}
     .me {color:var(--main-green); font-weight:bold;}
     .wait {color:var(--main-pink);}
     input[type="text"], input[type="url"] {
       font-size: 1em;
-      padding: 7px 14px;
-      border-radius: 7px;
-      border: 1.5px solid #b4c6d8;
+      padding: 8px 15px;
+      border-radius: 8px;
+      border: 1.8px solid #b4c6d8;
       width: 72%;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       outline: none;
       background: #f9fbff;
       text-align: center;
-      transition: border-color .15s;
+      transition: border-color .15s, box-shadow .13s;
+      box-shadow: 0 1px 4px #e6e2ff55;
     }
     input[type="text"]:focus { border-color: var(--main-blue);}
     .footer {
-      margin: 22px 0 0 0;
+      margin: 27px 0 0 0;
       color: #b7b7b7;
-      font-size: .98em;
+      font-size: 1.01em;
       letter-spacing: 0.2px;
       text-align: center;
-      opacity: 0.95;
+      opacity: 0.97;
+      text-shadow: 0 1px 0 #fff7;
     }
-    @media (max-width:500px) {
-      .container {max-width: 98vw; padding: 7vw 2vw 30vw 2vw;}
-      .board { grid-template-columns: repeat(3, 25vw); gap: 2vw;}
-      .cell { width: 25vw; height: 25vw; font-size: 8vw; line-height: 25vw;}
-    }
-    /* Confetti pieces */
-    .confetti-piece {
-      position: absolute;
-      width: 10px; height: 18px;
-      border-radius: 3px;
-      opacity: 0.8;
-      will-change: transform;
-      z-index: 10000;
+    @media (max-width:600px) {
+      .container {max-width: 99vw; padding: 7vw 2vw 34vw 2vw;}
+      .board { grid-template-columns: repeat(3, 27vw); gap: 2vw;}
+      .cell { width: 27vw; height: 27vw; font-size: 8vw; line-height: 27vw;}
     }
   </style>
 </head>
@@ -383,7 +418,7 @@
           restartBtn.style.display = "";
           if (lastWinLine.length > 0) fireConfetti();
         }
-        else setTimeout(aiMove, 500);
+        else setTimeout(aiMove, 520);
       }
     }
 
@@ -514,7 +549,7 @@
       mainMenu.style.display = "";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
-      isHumanFirst = false; // menyuga chiqsangiz default: bot birinchi
+      isHumanFirst = false;
       clearConfetti();
     }
 
@@ -523,7 +558,7 @@
       let moveIdx = findBestMove(board, aiSymbol, humanSymbol);
       if (moveIdx === -1) {
         let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
-        moveIdx = empties[Math.floor(Math.random() * empties.length)];
+        moveIdx = empties[Math.floor(Math.random() *empties.length)];
       }
       board[moveIdx] = aiSymbol;
       winner = checkWinner();
@@ -536,7 +571,7 @@
         restartBtn.style.display = "";
         if (lastWinLine.length > 0) fireConfetti();
       }
-      if (!winner && turn === aiSymbol) setTimeout(aiMove, 500);
+      if (!winner && turn === aiSymbol) setTimeout(aiMove, 520);
     }
 
     function findBestMove(b, ai, human) {
@@ -572,28 +607,20 @@
     function fireConfetti() {
       clearConfetti();
       const colors = [
-        "var(--main-blue)", "var(--main-pink)", "var(--main-green)", "#ffd700", "#f7971e", "#7c77b9"
+        "var(--main-blue)", "var(--main-pink)", "var(--main-green)", "#ffd700", "#f7971e", "#7c77b9", "#fff"
       ];
-      const pieces = 46;
+      const pieces = 54;
       for(let i=0;i<pieces;i++) {
         let conf = document.createElement("div");
         conf.className = "confetti-piece";
         conf.style.background = colors[Math.floor(Math.random()*colors.length)];
         conf.style.left = (Math.random()*100) + "vw";
-        conf.style.top = "-4vh";
-        conf.style.opacity = Math.random()*0.6 + 0.4;
+        conf.style.top = (-2-Math.random()*4) + "vh";
+        conf.style.opacity = Math.random()*0.5 + 0.5;
         conf.style.transform = `rotate(${Math.random()*360}deg)`;
         confettiDiv.appendChild(conf);
-        const fall = 60 + Math.random()*30;
-        const transX = (Math.random()-.5)*30;
-        setTimeout(() => {
-          conf.style.transition = "top 1.6s cubic-bezier(.3,.4,.47,1.2), left 1.6s cubic-bezier(.3,.4,.47,1.2), opacity 2s";
-          conf.style.top = fall + "vh";
-          conf.style.left = `calc(${conf.style.left} + ${transX}vw)`;
-          conf.style.opacity = 0;
-        }, 20+Math.random()*150);
       }
-      setTimeout(clearConfetti, 2600);
+      setTimeout(clearConfetti, 2500);
     }
     function clearConfetti() {
       confettiDiv.innerHTML = "";
