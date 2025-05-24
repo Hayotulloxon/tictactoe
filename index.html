@@ -370,7 +370,6 @@
       opacity: 0.98;
       text-shadow: 0 1px 0 #fff7;
     }
-    /* AI menyu va pastki tugmalar uchun qisqa uslub */
     .ai-menu {
       display: flex;
       flex-direction: column;
@@ -590,11 +589,9 @@
       if (!gameId) {
         gameId = Math.random().toString(36).slice(2,10);
         history.replaceState({}, '', '?game=' + gameId);
-        showShareLink();
-      } else {
-        mySymbol = (firstPlayer === "X" ? "O" : "X");
-        oppSymbol = firstPlayer;
       }
+      // Havola doim ko‘rsatiladi
+      showShareLink();
       mode = "online";
       mainMenu.style.display = "none";
       if (aiMenu) aiMenu.style.display = "none";
@@ -652,9 +649,9 @@
         if (winner && lastWinLine.length > 0) fireConfetti();
       });
       socket.on("player-joined", () => {
-        if (mySymbol === firstPlayer) {
-          shareBlock.innerHTML = `<div class="share-block-main"><span class="me">Do‘stingiz ulandi! O‘yin boshlandi.</span></div>`;
-        }
+        // Havolani ham, "do‘stingiz ulandi!" yozuvini ham qoldiramiz
+        showShareLink();
+        shareBlock.innerHTML += `<div style="color:var(--neon-green);font-weight:700;margin-top:13px;">Do‘stingiz ulandi! O‘yin boshlandi.</div>`;
       });
       socket.on("disconnect", () => {
         statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
@@ -713,8 +710,13 @@
         }
         setTimeout(checkBotMove, 220);
       } else if (mode === "online") {
-        if ((mySymbol !== turn) || winner) return;
-        socket.emit("move", { gameId, idx, player: mySymbol });
+        if (!gameId || !mySymbol || winner) return;
+        if (turn !== mySymbol) return;
+        socket.emit("move", {
+          gameId: gameId,
+          idx: idx,
+          player: mySymbol
+        });
       }
     }
     function renderBoard() {
@@ -818,8 +820,8 @@
       updateWinLine();
       setTimeout(addBtnGlowSvg, 30);
       if (mode === "ai" && turn === aiSymbol) setTimeout(checkBotMove, 180);
-      else if (mode === "online" && socket) {
-        socket.emit("restart", gameId);
+      else if (mode === "online" && socket && gameId) {
+        socket.emit("restart", {gameId: gameId});
       }
     }
     function backToMenu() {
