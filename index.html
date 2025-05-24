@@ -11,62 +11,49 @@
       --main-green: #1fa960;
       --main-yellow: #ffe68a;
     }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       min-height: 100vh;
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #2b1055;
-      background-image: 
-        radial-gradient(ellipse at 80% 10%, #ff48c7 0 20%, #ffd6e0 40%, rgba(41,26,109,0.7) 100%),
-        radial-gradient(ellipse at 0% 100%, #d2eaff 0 30%, #9be7ff 60%, #291a6d 100%),
-        linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
+      min-width: 100vw;
+      background: radial-gradient(circle at 80% 10%, #ff48c7 0 18%, #ffd6e0 40%, #291a6d 100%),
+                  radial-gradient(ellipse at 0% 100%, #d2eaff 0 22%, #9be7ff 60%, #291a6d 100%),
+                  linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
       position: relative;
+      font-family: 'Segoe UI', Arial, sans-serif;
       overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    body::before {
-      content: "";
-      position: fixed;
-      left: 0; right: 0; top: 0; bottom: 0;
-      z-index: 0;
-      background: 
-        repeating-linear-gradient(120deg,rgba(255,255,255,0.06) 0 2px,rgba(0,0,0,0) 2px 60px),
-        linear-gradient(100deg,rgba(255,255,255,0.08) 5%,rgba(41,16,85,0.25) 95%);
-      pointer-events: none;
-      animation: aurora-move 14s ease-in-out infinite alternate;
-    }
-    @keyframes aurora-move {
-      0% {filter: blur(22px) hue-rotate(0deg);}
-      100% {filter: blur(28px) hue-rotate(35deg);}
-    }
-    body::after {
-      content: "";
-      pointer-events: none;
-      position: fixed;
-      left: 0; right: 0; top: 0; bottom: 0;
-      z-index: 0;
-      background-image: 
-        repeating-radial-gradient(circle at 20% 30%, #fff9 0 0.6px, transparent 1.5px 100px),
-        repeating-radial-gradient(circle at 70% 60%, #fff5 0 1.2px, transparent 2.5px 120px),
-        repeating-radial-gradient(circle at 90% 10%, #fff6 0 0.8px, transparent 1.5px 70px);
-      animation: stars-move 40s linear infinite;
-      opacity: 0.7;
-    }
-    @keyframes stars-move {
-      0% {background-position: 0 0,0 0,0 0;}
-      100% {background-position: 60px 40px, -80px 0px, 100px 60px;}
-    }
-
     .container {
-      margin: 7vw auto 0 auto;
-      max-width: 425px;
-      background: rgba(255,255,255,0.95);
-      padding: 38px 18px 32px 18px;
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2vw 0 2vw 0;
+    }
+    .panel {
+      background: rgba(255,255,255,0.97);
       border-radius: 28px;
       box-shadow: 0 8px 36px #0004, 0 1.5px 8px #3775dd33;
       position: relative;
       z-index: 1;
       backdrop-filter: blur(3.3px);
       border: 2.5px solid #fff8;
+      max-width: 440px;
+      width: 99vw;
+      padding: 32px 18px 30px 18px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
       text-align:center;
@@ -74,7 +61,7 @@
       color: var(--main-blue);
       margin-top: 0;
       margin-bottom: 18px;
-      font-size: 2.3em;
+      font-size: 2.15em;
       font-weight: 800;
       background: linear-gradient(90deg, #fff 10%, var(--main-blue) 50%, var(--main-pink) 85%);
       -webkit-background-clip: text;
@@ -82,31 +69,29 @@
       filter: drop-shadow(0 2px 18px #fa5a7211);
       text-shadow: 0 2px 8px #fff7;
     }
-    .menu-btns { margin-bottom: 16px;}
+    .menu-btns { margin-bottom: 16px; width:100%;}
     .btn-block {
       display: block;
-      width: 100%;
-      margin: 13px 0;
-      padding: 16px 0;
-      font-size: 1.14em;
-      font-weight: 600;
+      width: 99%;
+      min-width: 220px;
+      margin: 16px auto 0 auto;
+      padding: 26px 0;
+      font-size: 1.25em;
+      font-weight: 700;
       border: none;
-      border-radius: 13px;
+      border-radius: 24px;
       background: linear-gradient(90deg, var(--main-blue) 0%, var(--main-pink) 100%);
       color: #fff;
       box-shadow: 0 2px 12px #3775dd26;
       cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: background .17s, box-shadow .16s, transform .14s;
+      letter-spacing: 1px;
+      transition: background .17s, box-shadow .16s, transform .14s, width .13s;
       position: relative;
       overflow: hidden;
       outline: none;
     }
-    .btn-block:active {
-      transform: scale(.97);
-      box-shadow: 0 1px 6px #3775dd11;
-    }
-    .btn-block:hover, #copyBtn:hover { 
+    .btn-block:active {transform: scale(.97);}
+    .btn-block:hover { 
       background: linear-gradient(90deg, var(--main-pink) 0%, var(--main-blue) 100%);
       transform: translateY(-1px) scale(1.04);
       box-shadow: 0 6px 26px #fa5a7240;
@@ -115,24 +100,26 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 18px;
-      margin-top: 30px;
+      gap: 26px;
+      margin-top: 40px;
       margin-bottom: 10px;
+      width: 99%;
     }
     .ai-level-btn {
-      width: 90%;
-      max-width: 310px;
-      padding: 24px 0;
+      width: 99%;
+      max-width: 430px;
+      padding: 34px 0;
       border: none;
-      border-radius: 18px;
+      border-radius: 28px;
       background: linear-gradient(90deg, var(--main-blue) 30%, var(--main-pink) 100%);
       color: #fff;
-      font-weight: 700;
-      font-size: 1.4em;
+      font-weight: 900;
+      font-size: 1.58em;
       letter-spacing: 2px;
       cursor: pointer;
       box-shadow: 0 2px 12px #3775dd29;
-      transition: background .14s, box-shadow .14s, transform .14s;
+      transition: background .14s, box-shadow .14s, transform .14s, width .13s;
+      margin: 0 auto;
     }
     .ai-level-btn:active, .ai-level-btn.selected {
       background: linear-gradient(90deg, var(--main-pink) 10%, var(--main-blue) 80%);
@@ -141,8 +128,8 @@
     }
     .board-wrap {
       position: relative;
-      width: 320px; height: 320px;
-      margin: 34px auto 0 auto;
+      width: 350px; height: 350px;
+      margin: 48px auto 0 auto;
     }
     .board {
       width: 100%; height: 100%;
@@ -160,7 +147,7 @@
       width: 100%; height: 100%;
       background: linear-gradient(140deg, #fff 60%, #f5eefa 100%);
       border-radius: 19px;
-      font-size: 2.9em;
+      font-size: 3.2em;
       font-weight: bold;
       color: var(--main-blue);
       cursor: pointer;
@@ -187,7 +174,7 @@
     .win-line {
       position: absolute;
       left: 0; top: 0;
-      width: 320px; height: 320px;
+      width: 350px; height: 350px;
       pointer-events: none;
       z-index: 3;
     }
@@ -205,7 +192,7 @@
       to { stroke-dashoffset: 0;}
     }
     .status {
-      font-size: 1.21em;
+      font-size: 1.31em;
       margin: 18px 0 10px 0;
       font-weight: 700;
       letter-spacing: .5px;
@@ -224,61 +211,70 @@
       opacity: 0.97;
       text-shadow: 0 1px 0 #fff7;
     }
+    .bottom-btns {
+      display: flex;
+      flex-direction: row;
+      gap: 25px;
+      margin-top: 56px;
+      margin-bottom: 2px;
+      align-items: stretch;
+      justify-content: center;
+      width: 99%;
+    }
+    .bottom-btns .btn-block {
+      width: 100%;
+      min-width: 160px;
+      margin: 0 !important;
+      padding: 26px 0;
+      font-size: 1.21em;
+      border-radius: 18px;
+      box-shadow: 0 1px 8px #b9baf944;
+    }
     @media (max-width:600px) {
       .container {max-width: 99vw; padding: 7vw 2vw 24vw 2vw;}
-      .board-wrap, .win-line {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
-      .cell {font-size:8vw;}
-      .ai-level-btn {padding: 6vw 0; font-size: 1.2em;}
+      .panel {max-width:99vw;}
+      .board-wrap, .win-line {width: 98vw; height: 98vw; max-width: 99vw; max-height: 99vw;}
+      .cell {font-size:10vw;}
+      .ai-level-btn {padding: 8vw 0; font-size: 1.13em;}
+      .bottom-btns {margin-top: 12vw;}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
-    <div id="main-menu">
-      <div class="menu-btns" id="main-menu-btns">
-        <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
-        <button class="btn-block" onclick="showAIlevels()">AI (bot) bilan o‘ynash</button>
-        <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
+    <div class="panel">
+      <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
+      <div id="main-menu">
+        <div class="menu-btns" id="main-menu-btns">
+          <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
+          <button class="btn-block" onclick="showAIlevels()">AI (bot) bilan o‘ynash</button>
+          <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
+        </div>
+        <div class="ai-levels" id="ai-levels">
+          <button class="ai-level-btn" onclick="startAI('easy')" id="ai-easy">Oson</button>
+          <button class="ai-level-btn" onclick="startAI('medium')" id="ai-medium">O‘rta</button>
+          <button class="ai-level-btn" onclick="startAI('hard')" id="ai-hard">Qiyin</button>
+        </div>
       </div>
-      <div class="ai-levels" id="ai-levels">
-        <button class="ai-level-btn" onclick="startAI('easy')" id="ai-easy">Oson</button>
-        <button class="ai-level-btn" onclick="startAI('medium')" id="ai-medium">O‘rta</button>
-        <button class="ai-level-btn" onclick="startAI('hard')" id="ai-hard">Qiyin</button>
+      <div id="game" style="display:none;">
+        <div class="status" id="status"></div>
+        <div class="board-wrap">
+          <div id="win-line"></div>
+          <div class="board" id="board"></div>
+        </div>
+        <div class="bottom-btns">
+          <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
+          <button class="btn-block" onclick="backToMenu()">Ortga</button>
+        </div>
+        <div id="share-block" class="link"></div>
       </div>
+      <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
+      <div class="confetti" id="confetti"></div>
     </div>
-    <div id="game" style="display:none;">
-      <div class="status" id="status"></div>
-      <div class="board-wrap">
-        <div id="win-line"></div>
-        <div class="board" id="board"></div>
-      </div>
-      <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
-      <div id="share-block" class="link"></div>
-      <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
-    </div>
-    <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
-    <div class="confetti" id="confetti"></div>
   </div>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
-    // ... qolgan kodlar o'zgarmaydi ...
-    const backendUrl = "https://tictactoebackend-eh25.onrender.com";
-    let mode = null;
-    let board = Array(9).fill(null);
-    let turn = "X";
-    let winner = null;
-    let mySymbol = null;
-    let oppSymbol = null;
-    let gameId = null;
-    let socket = null;
-    let aiSymbol = null;
-    let humanSymbol = null;
-    let isHumanFirst = false;
-    let lastWinLine = [];
-    let winLineType = "";
-    let aiName = "🤖 Bot";
-    let aiLevel = 'easy';
+    let mode = null, aiSymbol = "O", humanSymbol = "X", aiLevel = 'easy', isHumanFirst = true;
+    let board = Array(9).fill(null), turn = "X", winner = null, lastWinLine = [], winLineType = "";
     const mainMenu = document.getElementById("main-menu");
     const mainMenuBtns = document.getElementById("main-menu-btns");
     const aiLevelsDiv = document.getElementById("ai-levels");
@@ -298,12 +294,12 @@
     function startAI(level) {
       aiLevel = level;
       mode = "ai";
-      board = Array(9).fill(null);
-      winner = null;
-      isHumanFirst = false;
+      isHumanFirst = true;
       humanSymbol = "X";
       aiSymbol = "O";
       turn = "X";
+      board = Array(9).fill(null);
+      winner = null;
       lastWinLine = [];
       winLineType = "";
       mainMenu.style.display = "none";
@@ -314,6 +310,7 @@
       restartBtn.style.display = "none";
       clearConfetti();
       drawWinLine();
+      // Agar bot birinchi yuradigan bo'lsa, bu yerda yurishi kerak
       if (turn === aiSymbol) setTimeout(aiMove, 500);
     }
 
@@ -322,8 +319,6 @@
       board = Array(9).fill(null);
       turn = "X";
       winner = null;
-      mySymbol = null;
-      oppSymbol = null;
       lastWinLine = [];
       winLineType = "";
       mainMenu.style.display = "none";
@@ -342,7 +337,6 @@
       alert("Onlayn multiplayer uchun backend kerak va demo emas.");
     }
 
-    // ... qolgan kodlar o'zgarmaydi ...
     function move(idx) {
       if (board[idx] || winner) return;
       if (mode === "local") {
@@ -372,9 +366,10 @@
         if (winner) {
           restartBtn.style.display = "";
           if (lastWinLine.length > 0) fireConfetti();
+          return;
         }
         drawWinLine();
-        if (!winner) setTimeout(aiMove, 520);
+        setTimeout(aiMove, 500);
       }
     }
 
@@ -382,17 +377,20 @@
       if (winner || turn !== aiSymbol) return;
       let moveIdx;
       if (aiLevel === 'easy') {
-        let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
-        moveIdx = empties[Math.floor(Math.random() *empties.length)];
+        let empties = [];
+        for (let i = 0; i < 9; i++) if (!board[i]) empties.push(i);
+        moveIdx = empties[Math.floor(Math.random() * empties.length)];
       } else if (aiLevel === 'medium') {
         moveIdx = findBestMove(board, aiSymbol, humanSymbol);
         if (moveIdx === -1) {
-          let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
-          moveIdx = empties[Math.floor(Math.random() *empties.length)];
+          let empties = [];
+          for (let i = 0; i < 9; i++) if (!board[i]) empties.push(i);
+          moveIdx = empties[Math.floor(Math.random() * empties.length)];
         }
       } else {
         moveIdx = minimaxMove();
       }
+      if (moveIdx === undefined || moveIdx === null) return;
       board[moveIdx] = aiSymbol;
       winner = checkWinner();
       let found = findWinLine(board,true);
@@ -404,9 +402,11 @@
       if (winner) {
         restartBtn.style.display = "";
         if (lastWinLine.length > 0) fireConfetti();
+        return;
       }
       drawWinLine();
-      if (!winner && turn === aiSymbol) setTimeout(aiMove, 520);
+      // Agar keyingi yurish ham bot navbatida bo'lsa (masalan, qayta o'yinda O birinchi yuradigan bo'lsa), yana yur!
+      if (turn === aiSymbol && !winner) setTimeout(aiMove, 500);
     }
 
     function minimaxMove() {
@@ -425,8 +425,8 @@
       function minimax(b, player) {
         let winnerX = checkWinnerMini(b, "X");
         let winnerO = checkWinnerMini(b, "O");
-        if(winnerX) return {score: -1};
-        if(winnerO) return {score: 1};
+        if(winnerX) return {score: winnerX === aiSymbol ? 1 : -1};
+        if(winnerO) return {score: winnerO === aiSymbol ? 1 : -1};
         if(b.every(Boolean)) return {score: 0};
         let moves = [];
         for(let i=0;i<9;i++) {
@@ -493,14 +493,14 @@
           if (winner === humanSymbol) {
             statusDiv.textContent = "Siz yutdingiz! 🎉";
           } else if (winner === aiSymbol) {
-            statusDiv.textContent = aiName + " yutdi!";
+            statusDiv.textContent = "🤖 Bot yutdi!";
           } else {
             statusDiv.textContent = "Durrang!";
           }
         } else if (turn === humanSymbol) {
           statusDiv.textContent = "Sizning navbatingiz";
         } else {
-          statusDiv.textContent = aiName + " navbati...";
+          statusDiv.textContent = "🤖 Bot navbati...";
         }
       }
     }
@@ -548,15 +548,9 @@
         isHumanFirst = !isHumanFirst;
         board = Array(9).fill(null);
         winner = null;
-        if (isHumanFirst) {
-          humanSymbol = "X";
-          aiSymbol = "O";
-          turn = "X";
-        } else {
-          humanSymbol = "O";
-          aiSymbol = "X";
-          turn = "X";
-        }
+        humanSymbol = isHumanFirst ? "X" : "O";
+        aiSymbol = isHumanFirst ? "O" : "X";
+        turn = isHumanFirst ? "X" : "O";
         lastWinLine = [];
         winLineType = "";
         renderBoard();
@@ -573,18 +567,14 @@
       board = Array(9).fill(null);
       turn = "X";
       winner = null;
-      mySymbol = null;
-      oppSymbol = null;
-      gameId = null;
       lastWinLine = [];
       winLineType = "";
-      history.replaceState({}, '', location.pathname);
       mainMenu.style.display = "";
       aiLevelsDiv.style.display = "none";
       mainMenuBtns.style.display = "";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
-      isHumanFirst = false;
+      isHumanFirst = true;
       clearConfetti();
       drawWinLine();
     }
@@ -612,8 +602,6 @@
     }
 
     window.onload = function() {
-      let q = new URLSearchParams(location.search);
-      if (q.get("game")) startOnline();
       document.getElementById("year").textContent = new Date().getFullYear();
       aiLevelsDiv.style.display = "none";
     }
