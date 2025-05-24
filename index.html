@@ -30,15 +30,17 @@
       align-items: center;
       justify-content: center;
     }
-    body::before {
-      content: "";
+    body::before, body::after {
+      pointer-events: none;
       position: fixed;
       left: 0; right: 0; top: 0; bottom: 0;
       z-index: 0;
+      content: '';
+    }
+    body::before {
       background: 
         repeating-linear-gradient(120deg,rgba(255,255,255,0.06) 0 2px,rgba(0,0,0,0) 2px 60px),
         linear-gradient(100deg,rgba(255,255,255,0.08) 5%,rgba(41,16,85,0.25) 95%);
-      pointer-events: none;
       animation: aurora-move 14s ease-in-out infinite alternate;
     }
     @keyframes aurora-move {
@@ -46,11 +48,6 @@
       100% {filter: blur(28px) hue-rotate(35deg);}
     }
     body::after {
-      content: "";
-      pointer-events: none;
-      position: fixed;
-      left: 0; right: 0; top: 0; bottom: 0;
-      z-index: 0;
       background-image: 
         repeating-radial-gradient(circle at 20% 30%, #fff9 0 0.6px, transparent 1.5px 100px),
         repeating-radial-gradient(circle at 70% 60%, #fff5 0 1.2px, transparent 2.5px 120px),
@@ -62,7 +59,6 @@
       0% {background-position: 0 0,0 0,0 0;}
       100% {background-position: 60px 40px, -80px 0px, 100px 60px;}
     }
-
     .container {
       min-height: 100vh;
       width: 100vw;
@@ -70,7 +66,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3vw 0 3vw 0;
+      padding: 2vw 0 2vw 0;
     }
     .panel {
       background: rgba(255,255,255,0.97);
@@ -102,7 +98,7 @@
       filter: drop-shadow(0 2px 18px #fa5a7211);
       text-shadow: 0 2px 8px #fff7;
     }
-    .menu-btns { margin-bottom: 12px;}
+    .menu-btns { margin-bottom: 12px; width:100%;}
     .btn-block {
       display: block;
       width: 100%;
@@ -123,40 +119,48 @@
       outline: none;
     }
     .btn-block:active {transform: scale(.97);}
-    .btn-block:hover, #copyBtn:hover { 
+    .btn-block:hover { 
       background: linear-gradient(90deg, var(--main-pink) 0%, var(--main-blue) 100%);
       transform: translateY(-1px) scale(1.04);
       box-shadow: 0 6px 26px #fa5a7240;
     }
     .ai-levels {
       display:flex;
-      gap:10px;
+      flex-direction:column;
+      gap:22px;
       justify-content:center;
-      margin-bottom: 10px;
-      margin-top: 6px;
+      align-items:center;
+      margin: 30px 0 20px 0;
+      padding: 0 0 8px 0;
+      width: 100%;
     }
     .ai-level-btn {
-      padding: 8px 18px;
+      width: 90%;
+      max-width: 310px;
+      padding: 24px 0;
       border: none;
-      border-radius: 8px;
-      background: #eee;
-      color: var(--main-blue);
-      font-weight: 600;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background .12s, color .12s;
-    }
-    .ai-level-btn.selected, .ai-level-btn:active {
-      background: var(--main-pink);
+      border-radius: 18px;
+      background: linear-gradient(90deg, var(--main-blue) 30%, var(--main-pink) 100%);
       color: #fff;
+      font-weight: 700;
+      font-size: 1.4em;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #3775dd29;
+      transition: background .14s, box-shadow .14s, transform .14s;
+    }
+    .ai-level-btn:active, .ai-level-btn.selected {
+      background: linear-gradient(90deg, var(--main-pink) 10%, var(--main-blue) 80%);
+      box-shadow: 0 6px 26px #fa5a7240;
+      transform: scale(1.05);
     }
     .board-outer {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 10px;
-      min-height: 340px;
+      margin-bottom: 24px;
+      min-height: 320px;
     }
     .board-wrap {
       position: relative;
@@ -251,6 +255,7 @@
       .panel {max-width:99vw; padding: 6vw 2vw 8vw 2vw;}
       .board-outer, .board-wrap, .win-line, .board {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
       .cell {font-size:8vw;}
+      .ai-level-btn {padding: 6vw 0; font-size: 1.2em;}
     }
   </style>
 </head>
@@ -261,8 +266,8 @@
       <div id="main-menu">
         <div class="menu-btns">
           <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
-          <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
           <button class="btn-block" onclick="showAIlevels()">AI (bot) bilan o‘ynash</button>
+          <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
         </div>
         <div class="ai-levels" id="ai-levels" style="display:none;">
           <button class="ai-level-btn" onclick="startAI('easy')" id="ai-easy">Oson</button>
@@ -286,23 +291,16 @@
       <div class="confetti" id="confetti"></div>
     </div>
   </div>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     let board = Array(9).fill(null), turn="X", winner=null, lastWinLine=[], winLineType="";
     let mode = null, aiSymbol = "O", humanSymbol = "X", aiLevel = "easy";
-    let mySymbol = "X", oppSymbol = "O";
-    let gameId = null, socket = null;
     const boardDiv=document.getElementById("board"), statusDiv=document.getElementById("status");
     const winLineDiv=document.getElementById("win-line"), restartBtn=document.getElementById("restartBtn");
     const mainMenu = document.getElementById("main-menu");
     const gameDiv = document.getElementById("game");
-    const shareBlock = document.getElementById("share-block");
     const aiLevels = document.getElementById("ai-levels");
     function showAIlevels() {
       aiLevels.style.display = "flex";
-      document.getElementById("ai-easy").classList.remove("selected");
-      document.getElementById("ai-medium").classList.remove("selected");
-      document.getElementById("ai-hard").classList.remove("selected");
     }
     function startAI(level) {
       mode="ai"; aiLevel=level; winner=null; lastWinLine=[]; winLineType="";
@@ -311,6 +309,9 @@
       gameDiv.style.display="";
       board=Array(9).fill(null); turn=humanSymbol="X"; aiSymbol="O";
       renderBoard(); updateStatus(); drawWinLine(); restartBtn.style.display="none";
+      document.getElementById("ai-easy").classList.remove("selected");
+      document.getElementById("ai-medium").classList.remove("selected");
+      document.getElementById("ai-hard").classList.remove("selected");
       document.getElementById("ai-" + level).classList.add("selected");
     }
     function startLocal() {
@@ -410,7 +411,7 @@
         setTimeout(aiMove, 500);
       }
     }
-    // AI with 3 levels: easy - random; medium - block/win; hard - simple minimax
+    // AI with 3 levels: easy - random; medium - block/win; hard - minimax
     function aiMove() {
       if(winner) return;
       let idx;
