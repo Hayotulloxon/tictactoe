@@ -3,42 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <title>Tic Tac Toe Multiplayer & AI (X-O)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center;}
-    .container { margin:40px auto; max-width:350px; background:#fff; padding:25px 15px 35px 15px; border-radius:12px; box-shadow:0 2px 12px #bbb2; }
-    .board { display:grid; grid-template-columns:repeat(3,80px); gap:7px; margin:25px auto; justify-content:center;}
-    .cell { width:80px; height:80px; background:#f4f8fa; border-radius:7px; font-size:2.5em; cursor:pointer; line-height:80px; transition:background .2s; user-select:none; border:2px solid #b4c6d8;}
-    .cell:hover { background:#e8edf3;}
-    .btn-block{display:block;width:100%;margin:8px 0;padding:10px 22px;font-size:1em;border:none;border-radius:8px;background:#3775dd;color:#fff;cursor:pointer;transition:background .2s;}
-    .btn-block:hover{background:#285bb5;}
-    .status{font-size:1.2em;margin:13px 0 3px 0;font-weight:bold;}
-    .link {margin:12px 0; color:#3775dd; font-size:1em;}
-    .me {color:#2db312; font-weight:bold;}
-    .wait {color:#c19700;}
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #e3eefe 0%, #efddfb 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      margin: 48px auto;
+      max-width: 400px;
+      background: #fff;
+      padding: 32px 18px 38px 18px;
+      border-radius: 18px;
+      box-shadow: 0 6px 36px #bdd7ff60, 0 1.5px 6px #0002;
+    }
+    h1 {
+      letter-spacing: 1.5px;
+      color: #3775dd;
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 2em;
+    }
+    .menu-btns { margin-bottom: 8px;}
+    .btn-block {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 13px 0;
+      font-size: 1.09em;
+      font-weight: 500;
+      border: none;
+      border-radius: 9px;
+      background: linear-gradient(90deg,#3775dd 60%,#4f9aff 100%);
+      color: #fff;
+      box-shadow: 0 1px 5px #3775dd20;
+      cursor: pointer;
+      transition: background .18s, box-shadow .18s;
+    }
+    .btn-block:hover, #copyBtn:hover { background: linear-gradient(90deg,#285bb5 60%,#3775dd 100%);}
     #copyBtn {
       display:inline-block;
       margin-left:5px;
-      padding:3px 12px;
+      padding:4px 16px;
       font-size:1em;
       border:none;
-      border-radius:6px;
-      background:#3775dd;
-      color:#fff;
-      cursor:pointer;
-      transition:background .2s;
+      border-radius:7px;
+      background:linear-gradient(90deg,#3775dd 60%,#4f9aff 100%);
+      color:#fff; cursor:pointer;
+      transition:background .17s;
     }
     #copyBtn.copied {
-      background:#2db312;
+      background:linear-gradient(90deg,#2db312 60%,#3cd45a 100%);
+      color:#fff;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 82px);
+      gap: 10px;
+      margin: 28px auto 8px auto;
+      justify-content: center;
+    }
+    .cell {
+      width: 82px; height: 82px;
+      background: #f6faff;
+      border-radius: 13px;
+      font-size: 2.6em;
+      font-weight: bold;
+      color: #3775dd;
+      cursor: pointer;
+      line-height: 82px;
+      box-shadow: 0 2px 8px #3775dd18;
+      user-select: none;
+      border: 2.2px solid #b4c6d8;
+      transition: background .18s, color .15s, box-shadow .15s;
+      text-align:center;
+    }
+    .cell:hover { background:#e9f1ff; }
+    .cell.x { color: #3775dd; }
+    .cell.o { color: #fa5a72; }
+    .cell.win { background: #d6f5e9; color: #1fa960;}
+    .status {
+      font-size: 1.15em;
+      margin: 13px 0 6px 0;
+      font-weight: bold;
+      letter-spacing: .5px;
+      min-height: 20px;
+    }
+    .link {margin:12px 0; color:#3775dd; font-size:1em;}
+    .me {color:#2db312; font-weight:bold;}
+    .wait {color:#c19700;}
+    input[type="text"], input[type="url"] {
+      font-size: .98em;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1.2px solid #b4c6d8;
+      width: 74%;
+      margin-bottom: 5px;
+      outline: none;
+      background: #f6faff;
+      text-align: center;
+    }
+    .footer {
+      margin: 22px 0 0 0;
+      color: #b7b7b7;
+      font-size: .98em;
+    }
+    @media (max-width:500px) {
+      .container {max-width: 98vw; padding: 7vw 2vw 30vw 2vw;}
+      .board { grid-template-columns: repeat(3, 24vw); gap: 2vw;}
+      .cell { width: 24vw; height: 24vw; font-size: 8vw; line-height: 24vw;}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Tic Tac Toe Multiplayer & AI (X-O)</h1>
+    <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
     <div id="main-menu">
-      <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
-      <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
-      <button class="btn-block" onclick="startAI()">AI (kompyuter) bilan o‘ynash</button>
+      <div class="menu-btns">
+        <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
+        <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
+        <button class="btn-block" onclick="startAI()">AI (bot) bilan o‘ynash</button>
+      </div>
     </div>
     <div id="game" style="display:none;">
       <div class="status" id="status"></div>
@@ -47,6 +134,7 @@
       <div id="share-block" class="link"></div>
       <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
     </div>
+    <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
   </div>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
@@ -65,6 +153,8 @@
     let aiSymbol = null;
     let humanSymbol = null;
     let nextStarter = "X";
+    let lastWinLine = [];
+    let aiName = "🤖 Bot";
 
     // DOM
     const mainMenu = document.getElementById("main-menu");
@@ -82,6 +172,7 @@
       winner = null;
       mySymbol = null;
       oppSymbol = null;
+      lastWinLine = [];
       mainMenu.style.display = "none";
       shareBlock.innerHTML = "";
       gameDiv.style.display = "";
@@ -109,6 +200,7 @@
       board = Array(9).fill(null);
       turn = nextStarter;
       winner = null;
+      lastWinLine = [];
       restartBtn.style.display = "none";
       renderBoard();
       updateStatus();
@@ -122,18 +214,19 @@
       aiSymbol = nextStarter;
       humanSymbol = nextStarter === "X" ? "O" : "X";
       turn = nextStarter;
+      lastWinLine = [];
       mainMenu.style.display = "none";
       shareBlock.innerHTML = "";
       gameDiv.style.display = "";
       renderBoard();
       updateStatus();
       restartBtn.style.display = "none";
-      if (turn === aiSymbol) setTimeout(aiMove, 400);
+      if (turn === aiSymbol) setTimeout(aiMove, 500);
     }
 
     function showShareLink() {
-      shareBlock.innerHTML = `Ushbu havolani do‘stingizga yuboring: <br>
-        <input id="shareInput" style="width:75%;text-align:center;" readonly value="${location.href}">
+      shareBlock.innerHTML = `Ushbu havolani do‘stingizga yuboring:<br>
+        <input id="shareInput" type="text" readonly value="${location.href}">
         <button id="copyBtn" onclick="copyShareLink()">Nusxalash</button><br>
         <span class="wait">Do‘stingiz kirishini kuting...</span>`;
     }
@@ -162,7 +255,8 @@
         board = game.board;
         turn = game.turn;
         winner = game.winner;
-        if (game.starter) nextStarter = game.starter; // NAVBATNI SERVERDAN OLIB
+        if (game.starter) nextStarter = game.starter;
+        lastWinLine = findWinLine(board);
         renderBoard();
         updateStatus();
         if (winner) restartBtn.style.display = "";
@@ -182,6 +276,7 @@
       if (mode === "local") {
         board[idx] = turn;
         winner = checkWinner();
+        lastWinLine = findWinLine(board);
         turn = turn === "X" ? "O" : "X";
         renderBoard();
         updateStatus();
@@ -193,18 +288,22 @@
         if (turn !== humanSymbol || winner) return;
         board[idx] = humanSymbol;
         winner = checkWinner();
+        lastWinLine = findWinLine(board);
         turn = aiSymbol;
         renderBoard();
         updateStatus();
         if (winner) restartBtn.style.display = "";
-        else setTimeout(aiMove, 400);
+        else setTimeout(aiMove, 500);
       }
     }
 
     function renderBoard() {
       boardDiv.innerHTML = "";
       for (let i = 0; i < 9; i++) {
-        boardDiv.innerHTML += `<div class="cell" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
+        let c = "cell";
+        if (board[i]) c += " " + board[i].toLowerCase();
+        if (lastWinLine.includes(i)) c += " win";
+        boardDiv.innerHTML += `<div class="${c}" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
       }
     }
 
@@ -236,12 +335,12 @@
           } else if (winner === humanSymbol) {
             statusDiv.textContent = "Siz yutdingiz! 🎉";
           } else {
-            statusDiv.textContent = "AI yutdi 🤖";
+            statusDiv.textContent = aiName + " yutdi!";
           }
         } else if (turn === humanSymbol) {
           statusDiv.textContent = "Sizning navbatingiz";
         } else {
-          statusDiv.textContent = "AI navbati...";
+          statusDiv.textContent = aiName + " navbati...";
         }
       }
     }
@@ -260,18 +359,31 @@
       return null;
     }
 
+    function findWinLine(b) {
+      const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (let l of lines) {
+        const [a,b,c] = l;
+        if (b[a] && b[a] === b[b] && b[a] === b[c]) return l;
+      }
+      return [];
+    }
+
     function restartGame() {
       if (mode === "local") {
         nextStarter = (nextStarter === "X" ? "O" : "X");
         board = Array(9).fill(null);
         turn = nextStarter;
         winner = null;
+        lastWinLine = [];
         renderBoard();
         updateStatus();
         restartBtn.style.display = "none";
       } else if (mode === "online" && socket) {
         socket.emit("restart", gameId);
-        // NAVBAT SERVERDAN KELADI!
       } else if (mode === "ai") {
         nextStarter = (nextStarter === "X" ? "O" : "X");
         board = Array(9).fill(null);
@@ -279,10 +391,11 @@
         aiSymbol = nextStarter;
         humanSymbol = nextStarter === "X" ? "O" : "X";
         turn = nextStarter;
+        lastWinLine = [];
         renderBoard();
         updateStatus();
         restartBtn.style.display = "none";
-        if (turn === aiSymbol) setTimeout(aiMove, 400);
+        if (turn === aiSymbol) setTimeout(aiMove, 500);
       }
     }
 
@@ -298,6 +411,7 @@
       mySymbol = null;
       oppSymbol = null;
       gameId = null;
+      lastWinLine = [];
       history.replaceState({}, '', location.pathname);
       mainMenu.style.display = "";
       gameDiv.style.display = "none";
@@ -313,14 +427,16 @@
       }
       board[moveIdx] = aiSymbol;
       winner = checkWinner();
+      lastWinLine = findWinLine(board);
       turn = humanSymbol;
       renderBoard();
       updateStatus();
-      if (!winner && turn === aiSymbol) setTimeout(aiMove, 400);
+      if (!winner && turn === aiSymbol) setTimeout(aiMove, 500);
       if (winner) restartBtn.style.display = "";
     }
 
     function findBestMove(b, ai, human) {
+      // 1. AI yutadigan joy bormi?
       for (let i = 0; i < 9; i++) {
         if (!b[i]) {
           b[i] = ai;
@@ -328,6 +444,7 @@
           b[i] = null;
         }
       }
+      // 2. Human yutadigan joyni to's
       for (let i = 0; i < 9; i++) {
         if (!b[i]) {
           b[i] = human;
@@ -335,6 +452,7 @@
           b[i] = null;
         }
       }
+      // 3. Markaz bo'sh bo'lsa, oladi
       if (!b[4]) return 4;
       return -1;
     }
@@ -342,6 +460,7 @@
     window.onload = function() {
       let q = new URLSearchParams(location.search);
       if (q.get("game")) startOnline();
+      document.getElementById("year").textContent = new Date().getFullYear();
     }
   </script>
 </body>
