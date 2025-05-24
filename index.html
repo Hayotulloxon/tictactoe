@@ -152,7 +152,7 @@
     let socket = null;
     let aiSymbol = null;
     let humanSymbol = null;
-    let nextIsHumanFirst = true; // <<=== BU O'ZGARUVCHI NAVBATNI NAZORAT QILADI
+    let isHumanFirst = false; // BIRINCHI O'YINDA BOT BOSHLAYDI
     let lastWinLine = [];
     let aiName = "🤖 Bot";
 
@@ -212,7 +212,7 @@
       board = Array(9).fill(null);
       winner = null;
       // NAVBAT: kim birinchi yuradi va u X bo'ladimi yoki O
-      if (nextIsHumanFirst) {
+      if (isHumanFirst) {
         humanSymbol = "X";
         aiSymbol = "O";
         turn = "X";
@@ -338,12 +338,12 @@
         }
       } else if (mode === "ai") {
         if (winner) {
-          if (winner === "draw") {
-            statusDiv.textContent = "Durrang!";
-          } else if (winner === humanSymbol) {
+          if (winner === humanSymbol) {
             statusDiv.textContent = "Siz yutdingiz! 🎉";
-          } else {
+          } else if (winner === aiSymbol) {
             statusDiv.textContent = aiName + " yutdi!";
+          } else {
+            statusDiv.textContent = "Durrang!";
           }
         } else if (turn === humanSymbol) {
           statusDiv.textContent = "Sizning navbatingiz";
@@ -381,9 +381,7 @@
     }
 
     function restartGame() {
-      // navbat har safar o‘zgaradi
       if (mode === "local") {
-        // Lokal rejimda X/O almashsin
         board = Array(9).fill(null);
         turn = "X";
         winner = null;
@@ -394,11 +392,11 @@
       } else if (mode === "online" && socket) {
         socket.emit("restart", gameId);
       } else if (mode === "ai") {
-        // AI REJIMI: kim birinchi yuradi har safar navbat bilan OZGARADI!
-        nextIsHumanFirst = !nextIsHumanFirst;
+        // NAVBAT: har safar bot va human birinchi yurishi almashadi!
+        isHumanFirst = !isHumanFirst;
         board = Array(9).fill(null);
         winner = null;
-        if (nextIsHumanFirst) {
+        if (isHumanFirst) {
           humanSymbol = "X";
           aiSymbol = "O";
           turn = "X";
@@ -432,7 +430,7 @@
       mainMenu.style.display = "";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
-      nextIsHumanFirst = true; // qayta menyuga chiqqanda default
+      isHumanFirst = false; // qayta menyuga chiqqanda default: bot birinchi
     }
 
     function aiMove() {
