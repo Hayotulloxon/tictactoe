@@ -580,18 +580,30 @@
       clearConfetti();
       setTimeout(addBtnGlowSvg, 30);
     }
+
+    // --- MULTIPLAYER LOGIC ---
     function startOnline() {
-      turn = firstPlayer;
-      mySymbol = turn;
-      oppSymbol = (turn === "X" ? "O" : "X");
-      let q = new URLSearchParams(location.search);
+      let q = new URLSearchParams(window.location.search);
       gameId = q.get("game");
+      let isJoin = !!gameId;
       if (!gameId) {
+        // Host (yaratuvchi) uchun yangi o'yin id ochiladi
         gameId = Math.random().toString(36).slice(2,10);
         history.replaceState({}, '', '?game=' + gameId);
       }
-      // Havola doim ko‘rsatiladi
-      showShareLink();
+      // X - doim birinchi, O - doim ikkinchi
+      // Har doim yangi o'yinga kirgan uchun: agar ?game= yo'q bo'lsa X, bo'lsa O bo'ladi
+      if (isJoin) {
+        mySymbol = "O";
+        oppSymbol = "X";
+        firstPlayer = "X";
+        turn = getTurnFromQuery() || "X";
+      } else {
+        mySymbol = "X";
+        oppSymbol = "O";
+        firstPlayer = "X";
+        turn = "X";
+      }
       mode = "online";
       mainMenu.style.display = "none";
       if (aiMenu) aiMenu.style.display = "none";
@@ -603,16 +615,22 @@
       restartBtn.style.display = "none";
       renderBoard();
       updateStatus();
+      showShareLink();
       connectSocket();
       clearConfetti();
       setTimeout(addBtnGlowSvg, 50);
+    }
+    function getTurnFromQuery() {
+      // Agar URL-da ?turn=... bo'lsa, uni foydalaning
+      let q = new URLSearchParams(window.location.search);
+      return q.get("turn");
     }
     function showShareLink() {
       shareBlock.innerHTML = `
         <div class="share-block-main">
           <div><b>Do‘stingiz bilan o‘ynash uchun havolani ulashing:</b></div>
           <div class="share-block-link">
-            <input id="shareInput" type="text" readonly value="${location.href}">
+            <input id="shareInput" type="text" readonly value="${location.origin + location.pathname}?game=${gameId}">
             <button id="copyBtn" onclick="copyShareLink()">Nusxalash</button>
           </div>
           <span class="wait">Do‘stingiz ushbu havola orqali kirishi kerak.</span>
@@ -649,7 +667,6 @@
         if (winner && lastWinLine.length > 0) fireConfetti();
       });
       socket.on("player-joined", () => {
-        // Havolani ham, "do‘stingiz ulandi!" yozuvini ham qoldiramiz
         showShareLink();
         shareBlock.innerHTML += `<div style="color:var(--neon-green);font-weight:700;margin-top:13px;">Do‘stingiz ulandi! O‘yin boshlandi.</div>`;
       });
@@ -657,6 +674,8 @@
         statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
       });
     }
+
+    // --- AI LOGIC ---
     function startAI(level) {
       aiLevel = level || "medium";
       mode = "ai";
@@ -838,6 +857,9 @@
       clearConfetti();
       updateWinLine();
       setTimeout(addBtnGlowSvg, 30);
+      if (window.location.search.includes("game=")) {
+        history.replaceState({}, '', location.pathname);
+      }
     }
     function aiMove() {
       let moveIdx;
@@ -959,6 +981,11 @@
     window.onload = function() {
       document.getElementById("year").textContent = new Date().getFullYear();
       setTimeout(addBtnGlowSvg, 50);
+      // Multiplayer link orqali to'g'ridan-to'g'ri o'yin (join) ochiladi
+      let q = new URLSearchParams(window.location.search);
+      if (q.get("game")) {
+        startOnline();
+      }
     }
     window.addEventListener("resize", drawWinLine);
     function drawWinLine() {
