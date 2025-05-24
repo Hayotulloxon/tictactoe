@@ -2,27 +2,25 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <title>Tic Tac Toe Multiplayer & AI (X-O)</title>
+  <title>Tic Tac Toe (X-O)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    :root {
-      --main-blue: #3775dd;
-      --main-pink: #fa5a72;
-      --main-green: #1fa960;
-      --main-yellow: #ffe68a;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
     body {
       min-height: 100vh;
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      /* Super impressive animated background (Aurora + gradient + stars) */
-      background: #2b1055;
-      background-image: 
-        radial-gradient(ellipse at 80% 10%, #ff48c7 0 20%, #ffd6e0 40%, rgba(41,26,109,0.7) 100%),
-        radial-gradient(ellipse at 0% 100%, #d2eaff 0 30%, #9be7ff 60%, #291a6d 100%),
-        linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
+      min-width: 100vw;
+      background: radial-gradient(circle at 80% 10%, #ff48c7 0 18%, #ffd6e0 40%, #291a6d 100%),
+                  radial-gradient(ellipse at 0% 100%, #d2eaff 0 22%, #9be7ff 60%, #291a6d 100%),
+                  linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
       position: relative;
+      font-family: 'Segoe UI', Arial, sans-serif;
       overflow-x: hidden;
+      min-height: 100vh;
     }
     body::before {
       /* Aurora effect */
@@ -58,638 +56,241 @@
       0% {background-position: 0 0,0 0,0 0;}
       100% {background-position: 60px 40px, -80px 0px, 100px 60px;}
     }
-
     .container {
-      margin: 7vw auto 0 auto;
-      max-width: 425px;
-      background: rgba(255,255,255,0.95);
-      padding: 38px 18px 32px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+    }
+    .game-panel {
+      background: rgba(255,255,255,0.97);
       border-radius: 28px;
       box-shadow: 0 8px 36px #0004, 0 1.5px 8px #3775dd33;
+      margin: 48px 0 0 0;
+      padding: 28px 28px 32px 28px;
+      max-width: 350px;
+      width: 95vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       position: relative;
-      z-index: 1;
-      backdrop-filter: blur(3.3px);
-      border: 2.5px solid #fff8;
     }
     h1 {
       text-align:center;
       letter-spacing: 1.5px;
-      color: var(--main-blue);
+      color: #3775dd;
       margin-top: 0;
       margin-bottom: 18px;
-      font-size: 2.3em;
+      font-size: 2.1em;
       font-weight: 800;
-      background: linear-gradient(90deg, #fff 10%, var(--main-blue) 50%, var(--main-pink) 85%);
+      background: linear-gradient(90deg, #fff 10%, #3775dd 50%, #fa5a72 85%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 2px 18px #fa5a7211);
       text-shadow: 0 2px 8px #fff7;
     }
-    .menu-btns { margin-bottom: 16px;}
-    .btn-block {
-      display: block;
-      width: 100%;
-      margin: 13px 0;
-      padding: 16px 0;
-      font-size: 1.14em;
+    .status {
+      font-size: 1.2em;
       font-weight: 600;
-      border: none;
-      border-radius: 13px;
-      background: linear-gradient(90deg, var(--main-blue) 0%, var(--main-pink) 100%);
-      color: #fff;
-      box-shadow: 0 2px 12px #3775dd26;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: background .17s, box-shadow .16s, transform .14s;
-      position: relative;
-      overflow: hidden;
-      outline: none;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #21213a;
+      min-height: 25px;
     }
-    .btn-block:active {
-      transform: scale(.97);
-      box-shadow: 0 1px 6px #3775dd11;
-    }
-    .btn-block:hover, #copyBtn:hover { 
-      background: linear-gradient(90deg, var(--main-pink) 0%, var(--main-blue) 100%);
-      transform: translateY(-1px) scale(1.04);
-      box-shadow: 0 6px 26px #fa5a7240;
-    }
-    #copyBtn {
-      display:inline-block;
-      margin-left:7px;
-      padding:6px 18px;
-      font-size:1em;
-      border:none;
-      border-radius:8px;
-      background:linear-gradient(90deg,var(--main-blue) 60%,var(--main-pink) 100%);
-      color:#fff; cursor:pointer;
-      transition:background .19s, box-shadow .16s;
-    }
-    #copyBtn.copied {
-      background:linear-gradient(90deg,var(--main-green) 60%,#64e39f 100%);
-      color:#fff;
-      box-shadow: 0 0 10px #b6e5cd93;
-    }
-
     .board-wrap {
       position: relative;
-      width: 320px; height: 320px;
-      margin: 34px auto 0 auto;
+      width: 240px;
+      height: 240px;
+      margin: 0 auto 18px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .board {
-      width: 100%; height: 100%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
-      gap: 14px;
+      gap: 10px;
+      width: 240px;
+      height: 240px;
       background: none;
-      position:relative;
       z-index: 2;
-      filter: drop-shadow(0 2px 20px #5e6fff28);
     }
     .cell {
       aspect-ratio: 1/1;
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       background: linear-gradient(140deg, #fff 60%, #f5eefa 100%);
-      border-radius: 19px;
-      font-size: 2.9em;
+      border-radius: 13px;
+      font-size: 2.3em;
       font-weight: bold;
-      color: var(--main-blue);
+      color: #3775dd;
       cursor: pointer;
       user-select: none;
-      border: 2.7px solid #c3d2f2;
+      border: 2px solid #b4c6d8;
       text-align:center;
       display: flex; align-items: center; justify-content: center;
-      transition: background .15s, color .13s, box-shadow .14s, border-color .13s;
-      outline: none;
-      position: relative;
-      z-index: 2;
-      overflow: visible;
-      filter: drop-shadow(0 0px 16px #fff5);
+      transition: background .13s, color .13s;
     }
-    .cell.x { color: var(--main-blue);}
-    .cell.o { color: var(--main-pink);}
-    .cell.win { 
-      background: linear-gradient(120deg, #fffed9 60%, #ffe68a 100%);
-      color: var(--main-green); 
-      border-color: var(--main-green); 
-      box-shadow: 0 0 32px #ffe68a99,0 2px 16px #bdd7ff55;
-      filter: drop-shadow(0 0 16px #ffe68a77);
-    }
+    .cell.x { color: #3775dd;}
+    .cell.o { color: #fa5a72;}
+    .cell.win { background: #ffe68a; color: #1fa960; border-color: #1fa960;}
     .win-line {
       position: absolute;
       left: 0; top: 0;
-      width: 320px; height: 320px;
+      width: 240px; height: 240px;
       pointer-events: none;
       z-index: 3;
     }
     .win-line-line {
       stroke: #1fa960;
-      stroke-width: 10px;
+      stroke-width: 9px;
       stroke-linecap: round;
-      filter: drop-shadow(0 0 8px #ffe68a) drop-shadow(0 0 22px #fff8);
-      opacity: 0.95;
-      stroke-dasharray: 330;
-      stroke-dashoffset: 330;
-      animation: winLineAnim 0.7s cubic-bezier(.15,.8,.36,1.3) forwards;
+      opacity: 0.93;
+      stroke-dasharray: 240;
+      stroke-dashoffset: 240;
+      animation: winLineAnim 0.7s both;
     }
-    @keyframes winLineAnim {
-      to { stroke-dashoffset: 0;}
-    }
-    .status {
-      font-size: 1.21em;
-      margin: 18px 0 10px 0;
-      font-weight: 700;
-      letter-spacing: .5px;
-      min-height: 23px;
-      color: #21213a;
-      text-shadow: 0 1px 0 #fff2;
-      text-align:center;
-      filter: drop-shadow(0 1px 6px #fff6);
-    }
-    .status .me {
-      color:var(--main-green); font-weight:900;
-    }
-    .status .wait {
-      color:var(--main-pink); font-weight:900;
-    }
-    .link {margin:14px 0; color: var(--main-blue); font-size:1em; font-weight:500;}
-    .me {color:var(--main-green); font-weight:bold;}
-    .wait {color:var(--main-pink);}
-    input[type="text"], input[type="url"] {
-      font-size: 1em;
-      padding: 8px 15px;
-      border-radius: 8px;
-      border: 1.8px solid #b4c6d8;
-      width: 72%;
-      margin-bottom: 8px;
+    @keyframes winLineAnim { to { stroke-dashoffset: 0;}}
+    .btn-block {
+      width: 100%;
+      margin: 12px 0 0 0;
+      padding: 12px 0;
+      font-size: 1.07em;
+      font-weight: 600;
+      border: none;
+      border-radius: 11px;
+      background: linear-gradient(90deg, #3775dd 60%, #fa5a72 100%);
+      color: #fff;
+      box-shadow: 0 2px 12px #3775dd26;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background .17s, box-shadow .16s, transform .14s;
       outline: none;
-      background: #f9fbff;
-      text-align: center;
-      transition: border-color .15s, box-shadow .13s;
-      box-shadow: 0 1px 4px #e6e2ff55;
     }
-    input[type="text"]:focus { border-color: var(--main-blue);}
+    .btn-block:active {transform: scale(.97);}
     .footer {
-      margin: 27px 0 0 0;
+      margin: 22px 0 0 0;
       color: #b7b7b7;
-      font-size: 1.01em;
-      letter-spacing: 0.2px;
+      font-size: 1em;
       text-align: center;
       opacity: 0.97;
       text-shadow: 0 1px 0 #fff7;
+      width:100%;
+    }
+    @media (max-width:340px) {
+      .game-panel, .board-wrap, .board, .win-line {width: 94vw !important; height: 94vw !important;}
+      .cell {font-size:8vw;}
     }
     @media (max-width:600px) {
-      .container {max-width: 99vw; padding: 7vw 2vw 24vw 2vw;}
-      .board-wrap, .win-line {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
+      .game-panel {max-width:99vw; padding: 6vw 2vw 8vw 2vw;}
+      .board-wrap, .board, .win-line {width: 94vw; height: 94vw;}
       .cell {font-size:8vw;}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
-    <div id="main-menu">
-      <div class="menu-btns">
-        <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
-        <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
-        <button class="btn-block" onclick="startAI()">AI (bot) bilan o‘ynash</button>
-      </div>
-    </div>
-    <div id="game" style="display:none;">
+    <div class="game-panel">
+      <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
       <div class="status" id="status"></div>
       <div class="board-wrap">
         <div id="win-line"></div>
         <div class="board" id="board"></div>
       </div>
       <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">Qayta o‘ynash</button>
-      <div id="share-block" class="link"></div>
       <button class="btn-block" style="margin-top:10px;" onclick="backToMenu()">Ortga</button>
+      <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
     </div>
-    <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
-    <div class="confetti" id="confetti"></div>
   </div>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script>
-    const backendUrl = "https://tictactoebackend-eh25.onrender.com";
-    let mode = null;
-    let board = Array(9).fill(null);
-    let turn = "X";
-    let winner = null;
-    let mySymbol = null;
-    let oppSymbol = null;
-    let gameId = null;
-    let socket = null;
-    let aiSymbol = null;
-    let humanSymbol = null;
-    let isHumanFirst = false;
-    let lastWinLine = [];
-    let winLineType = "";
-    let aiName = "🤖 Bot";
-    const mainMenu = document.getElementById("main-menu");
-    const gameDiv = document.getElementById("game");
-    const statusDiv = document.getElementById("status");
-    const boardDiv = document.getElementById("board");
-    const winLineDiv = document.getElementById("win-line");
-    const restartBtn = document.getElementById("restartBtn");
-    const shareBlock = document.getElementById("share-block");
-    const confettiDiv = document.getElementById("confetti");
+<script>
+let board = Array(9).fill(null), turn="X", winner=null, isHumanFirst=false, lastWinLine=[], winLineType="";
+const boardDiv=document.getElementById("board"), statusDiv=document.getElementById("status"), winLineDiv=document.getElementById("win-line"), restartBtn=document.getElementById("restartBtn");
 
-    function startLocal() {
-      mode = "local";
-      board = Array(9).fill(null);
-      turn = "X";
-      winner = null;
-      mySymbol = null;
-      oppSymbol = null;
-      lastWinLine = [];
-      winLineType = "";
-      mainMenu.style.display = "none";
-      shareBlock.innerHTML = "";
-      gameDiv.style.display = "";
-      renderBoard();
-      updateStatus();
-      restartBtn.style.display = "none";
-      clearConfetti();
-      drawWinLine();
-    }
-
-    function startOnline() {
-      let q = new URLSearchParams(location.search);
-      gameId = q.get("game");
-      let first = "X";
-      if (!gameId) {
-        gameId = Math.random().toString(36).slice(2,10);
-        mySymbol = first;
-        oppSymbol = first === "X" ? "O" : "X";
-        history.replaceState({}, '', '?game=' + gameId);
-        showShareLink();
-      } else {
-        mySymbol = "O";
-        oppSymbol = "X";
-      }
-      mode = "online";
-      mainMenu.style.display = "none";
-      gameDiv.style.display = "";
-      board = Array(9).fill(null);
-      turn = "X";
-      winner = null;
-      lastWinLine = [];
-      winLineType = "";
-      restartBtn.style.display = "none";
-      renderBoard();
-      updateStatus();
-      connectSocket();
-      clearConfetti();
-      drawWinLine();
-    }
-
-    function startAI() {
-      mode = "ai";
-      board = Array(9).fill(null);
-      winner = null;
-      if (isHumanFirst) {
-        humanSymbol = "X";
-        aiSymbol = "O";
-        turn = "X";
-      } else {
-        humanSymbol = "O";
-        aiSymbol = "X";
-        turn = "X";
-      }
-      lastWinLine = [];
-      winLineType = "";
-      mainMenu.style.display = "none";
-      shareBlock.innerHTML = "";
-      gameDiv.style.display = "";
-      renderBoard();
-      updateStatus();
-      restartBtn.style.display = "none";
-      clearConfetti();
-      drawWinLine();
-      if (turn === aiSymbol) setTimeout(aiMove, 500);
-    }
-
-    function showShareLink() {
-      shareBlock.innerHTML = `Ushbu havolani do‘stingizga yuboring:<br>
-        <input id="shareInput" type="text" readonly value="${location.href}">
-        <button id="copyBtn" onclick="copyShareLink()">Nusxalash</button><br>
-        <span class="wait">Do‘stingiz kirishini kuting...</span>`;
-    }
-
-    function copyShareLink() {
-      const input = document.getElementById("shareInput");
-      input.select();
-      input.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(input.value).then(()=>{
-        const btn = document.getElementById("copyBtn");
-        btn.textContent = "Nusxalandi!";
-        btn.classList.add("copied");
-        setTimeout(()=>{
-          btn.textContent = "Nusxalash";
-          btn.classList.remove("copied");
-        }, 1300);
-      });
-    }
-
-    function connectSocket() {
-      socket = io(backendUrl);
-      socket.on("connect", () => {
-        socket.emit("join", gameId);
-      });
-      socket.on("state", (game) => {
-        board = game.board;
-        turn = game.turn;
-        winner = game.winner;
-        let found = findWinLine(board,true);
-        lastWinLine = found.line;
-        winLineType = found.type;
-        renderBoard();
-        updateStatus();
-        if (winner) restartBtn.style.display = "";
-        if (winner && lastWinLine.length > 0) fireConfetti();
-        drawWinLine();
-      });
-      socket.on("player-joined", () => {
-        if (mySymbol === "X") {
-          shareBlock.innerHTML = '<span class="me">Do‘stingiz ulandi! O‘yin boshlandi.</span>';
-        }
-      });
-      socket.on("disconnect", () => {
-        statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
-      });
-    }
-
-    function move(idx) {
-      if (board[idx] || winner) return;
-      if (mode === "local") {
-        board[idx] = turn;
-        winner = checkWinner();
-        let found = findWinLine(board,true);
-        lastWinLine = found.line;
-        winLineType = found.type;
-        turn = turn === "X" ? "O" : "X";
-        renderBoard();
-        updateStatus();
-        if (winner) {
-          restartBtn.style.display = "";
-          if (lastWinLine.length > 0) fireConfetti();
-        }
-        drawWinLine();
-      } else if (mode === "online") {
-        if ((mySymbol !== turn) || winner) return;
-        socket.emit("move", { gameId, idx, player: mySymbol });
-      } else if (mode === "ai") {
-        if (turn !== humanSymbol || winner) return;
-        board[idx] = humanSymbol;
-        winner = checkWinner();
-        let found = findWinLine(board,true);
-        lastWinLine = found.line;
-        winLineType = found.type;
-        turn = aiSymbol;
-        renderBoard();
-        updateStatus();
-        if (winner) {
-          restartBtn.style.display = "";
-          if (lastWinLine.length > 0) fireConfetti();
-        }
-        drawWinLine();
-        if (!winner) setTimeout(aiMove, 520);
-      }
-    }
-
-    function renderBoard() {
-      boardDiv.innerHTML = "";
-      for (let i = 0; i < 9; i++) {
-        let c = "cell";
-        if (board[i]) c += " " + board[i].toLowerCase();
-        if (lastWinLine.includes(i)) c += " win";
-        boardDiv.innerHTML += `<div class="${c}" onclick="move(${i})">${board[i] ? board[i] : ''}</div>`;
-      }
-    }
-
-    function updateStatus() {
-      if (mode === "local") {
-        if (winner)
-          statusDiv.textContent = winner === "draw" ? "Durrang!" : `G‘olib: ${winner}`;
-        else
-          statusDiv.textContent = `Navbat: ${turn}`;
-      } else if (mode === "online") {
-        if (!mySymbol) return;
-        if (winner) {
-          if (winner === "draw") {
-            statusDiv.textContent = "Durrang!";
-          } else if (winner === mySymbol) {
-            statusDiv.textContent = "Siz g‘olibsiz! 🎉";
-          } else {
-            statusDiv.textContent = "Do‘stingiz g‘olib!";
-          }
-        } else if (turn === mySymbol) {
-          statusDiv.innerHTML = 'Sizning navbatingiz <span class="me">(' + mySymbol + ')</span>';
-        } else {
-          statusDiv.innerHTML = 'Do‘stingiz harakati <span class="wait">(' + oppSymbol + ')</span>';
-        }
-      } else if (mode === "ai") {
-        if (winner) {
-          if (winner === humanSymbol) {
-            statusDiv.textContent = "Siz yutdingiz! 🎉";
-          } else if (winner === aiSymbol) {
-            statusDiv.textContent = aiName + " yutdi!";
-          } else {
-            statusDiv.textContent = "Durrang!";
-          }
-        } else if (turn === humanSymbol) {
-          statusDiv.textContent = "Sizning navbatingiz";
-        } else {
-          statusDiv.textContent = aiName + " navbati...";
-        }
-      }
-    }
-
-    function checkWinner() {
-      const lines = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      for (let l of lines) {
-        const [a,b,c] = l;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
-      }
-      if (board.every(Boolean)) return 'draw';
-      return null;
-    }
-
-    // Returns {line: [a,b,c], type: "row"/"col"/"main"/"anti"} or {line:[],type:""}
-    function findWinLine(b,withType) {
-      const map = [
-        { line: [0,1,2], type: "row0" }, { line: [3,4,5], type: "row1" }, { line: [6,7,8], type: "row2" },
-        { line: [0,3,6], type: "col0" }, { line: [1,4,7], type: "col1" }, { line: [2,5,8], type: "col2" },
-        { line: [0,4,8], type: "main" }, { line: [2,4,6], type: "anti" }
-      ];
-      for (let m of map) {
-        const [a,b,c] = m.line;
-        if (b[a] && b[a] === b[b] && b[a] === b[c]) return withType ? m : m.line;
-      }
-      return withType ? {line:[],type:""} : [];
-    }
-
-    function restartGame() {
-      if (mode === "local") {
-        board = Array(9).fill(null);
-        turn = "X";
-        winner = null;
-        lastWinLine = [];
-        winLineType = "";
-        renderBoard();
-        updateStatus();
-        restartBtn.style.display = "none";
-        clearConfetti();
-        drawWinLine();
-      } else if (mode === "online" && socket) {
-        socket.emit("restart", gameId);
-        clearConfetti();
-        winLineType = "";
-        drawWinLine();
-      } else if (mode === "ai") {
-        isHumanFirst = !isHumanFirst;
-        board = Array(9).fill(null);
-        winner = null;
-        if (isHumanFirst) {
-          humanSymbol = "X";
-          aiSymbol = "O";
-          turn = "X";
-        } else {
-          humanSymbol = "O";
-          aiSymbol = "X";
-          turn = "X";
-        }
-        lastWinLine = [];
-        winLineType = "";
-        renderBoard();
-        updateStatus();
-        restartBtn.style.display = "none";
-        clearConfetti();
-        drawWinLine();
-        if (turn === aiSymbol) setTimeout(aiMove, 500);
-      }
-    }
-
-    function backToMenu() {
-      if (mode === "online" && socket) {
-        socket.emit("leave", gameId);
-        socket.disconnect();
-      }
-      mode = null;
-      board = Array(9).fill(null);
-      turn = "X";
-      winner = null;
-      mySymbol = null;
-      oppSymbol = null;
-      gameId = null;
-      lastWinLine = [];
-      winLineType = "";
-      history.replaceState({}, '', location.pathname);
-      mainMenu.style.display = "";
-      gameDiv.style.display = "none";
-      shareBlock.innerHTML = "";
-      isHumanFirst = false;
-      clearConfetti();
-      drawWinLine();
-    }
-
-    function aiMove() {
-      if (winner || turn !== aiSymbol) return;
-      let moveIdx = findBestMove(board, aiSymbol, humanSymbol);
-      if (moveIdx === -1) {
-        let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
-        moveIdx = empties[Math.floor(Math.random() *empties.length)];
-      }
-      board[moveIdx] = aiSymbol;
-      winner = checkWinner();
-      let found = findWinLine(board,true);
-      lastWinLine = found.line;
-      winLineType = found.type;
-      turn = humanSymbol;
-      renderBoard();
-      updateStatus();
-      if (winner) {
-        restartBtn.style.display = "";
-        if (lastWinLine.length > 0) fireConfetti();
-      }
-      drawWinLine();
-      if (!winner && turn === aiSymbol) setTimeout(aiMove, 520);
-    }
-
-    function findBestMove(b, ai, human) {
-      for (let i = 0; i < 9; i++) {
-        if (!b[i]) {
-          b[i] = ai;
-          if (checkWinner() === ai) { b[i] = null; return i; }
-          b[i] = null;
-        }
-      }
-      for (let i = 0; i < 9; i++) {
-        if (!b[i]) {
-          b[i] = human;
-          if (checkWinner() === human) { b[i] = null; return i; }
-          b[i] = null;
-        }
-      }
-      if (!b[4]) return 4;
-      return -1;
-    }
-
-    function drawWinLine() {
-      let size = boardDiv.offsetWidth || 320;
-      let coords = {
-        row0: [ [size*0.08, size*0.17], [size*0.92, size*0.17] ],
-        row1: [ [size*0.08, size*0.5], [size*0.92, size*0.5] ],
-        row2: [ [size*0.08, size*0.83], [size*0.92, size*0.83] ],
-        col0: [ [size*0.17, size*0.08], [size*0.17, size*0.92] ],
-        col1: [ [size*0.5, size*0.08], [size*0.5, size*0.92] ],
-        col2: [ [size*0.83, size*0.08], [size*0.83, size*0.92] ],
-        main: [ [size*0.09, size*0.09], [size*0.91, size*0.91] ],
-        anti: [ [size*0.91, size*0.09], [size*0.09, size*0.91] ]
-      };
-      let svg = "";
-      if(winLineType && coords[winLineType]) {
-        let [start,end] = coords[winLineType];
-        svg = `<svg class="win-line" width="${size}" height="${size}">
-          <line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/>
-        </svg>`;
-      }
-      winLineDiv.innerHTML = svg;
-    }
-
-    function fireConfetti() {
-      clearConfetti();
-      const colors = [
-        "var(--main-blue)", "var(--main-pink)", "var(--main-green)", "#ffd700", "#f7971e", "#7c77b9", "#fff"
-      ];
-      const pieces = 54;
-      for(let i=0;i<pieces;i++) {
-        let conf = document.createElement("div");
-        conf.className = "confetti-piece";
-        conf.style.background = colors[Math.floor(Math.random()*colors.length)];
-        conf.style.left = (Math.random()*100) + "vw";
-        conf.style.top = (-2-Math.random()*4) + "vh";
-        conf.style.opacity = Math.random()*0.5 + 0.5;
-        conf.style.transform = `rotate(${Math.random()*360}deg)`;
-        confettiDiv.appendChild(conf);
-      }
-      setTimeout(clearConfetti, 2500);
-    }
-    function clearConfetti() {
-      confettiDiv.innerHTML = "";
-    }
-
-    window.onload = function() {
-      let q = new URLSearchParams(location.search);
-      if (q.get("game")) startOnline();
-      document.getElementById("year").textContent = new Date().getFullYear();
-    }
-    window.addEventListener("resize", drawWinLine);
-  </script>
+function renderBoard() {
+  boardDiv.innerHTML="";
+  for(let i=0;i<9;i++) {
+    let c="cell";
+    if(board[i]) c+=" "+board[i].toLowerCase();
+    if(lastWinLine.includes(i)) c+=" win";
+    boardDiv.innerHTML+=`<div class="${c}" onclick="move(${i})">${board[i]||""}</div>`;
+  }
+}
+function updateStatus() {
+  if(winner) statusDiv.textContent=winner==="draw"?"Durrang!":`G‘olib: ${winner}`;
+  else statusDiv.textContent=`Navbat: ${turn}`;
+}
+function checkWinner() {
+  const lines=[
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ], types=["row0","row1","row2","col0","col1","col2","main","anti"];
+  for(let i=0;i<lines.length;i++){
+    let [a,b,c]=lines[i];
+    if(board[a]&&board[a]===board[b]&&board[a]===board[c]){winLineType=types[i]; return board[a];}
+  }
+  winLineType="";
+  if(board.every(Boolean)) return "draw";
+  return null;
+}
+function findWinLine(){
+  const map=[
+    {line:[0,1,2],type:"row0"},{line:[3,4,5],type:"row1"},{line:[6,7,8],type:"row2"},
+    {line:[0,3,6],type:"col0"},{line:[1,4,7],type:"col1"},{line:[2,5,8],type:"col2"},
+    {line:[0,4,8],type:"main"},{line:[2,4,6],type:"anti"}
+  ];
+  for(let m of map){
+    let [a,b,c]=m.line;
+    if(board[a]&&board[a]===board[b]&&board[a]===board[c])return {line:m.line,type:m.type};
+  }
+  return {line:[],type:""};
+}
+function drawWinLine() {
+  let size=boardDiv.offsetWidth||240;
+  let coords={
+    row0:[[size*0.08,size*0.17],[size*0.92,size*0.17]],
+    row1:[[size*0.08,size*0.5],[size*0.92,size*0.5]],
+    row2:[[size*0.08,size*0.83],[size*0.92,size*0.83]],
+    col0:[[size*0.17,size*0.08],[size*0.17,size*0.92]],
+    col1:[[size*0.5,size*0.08],[size*0.5,size*0.92]],
+    col2:[[size*0.83,size*0.08],[size*0.83,size*0.92]],
+    main:[[size*0.09,size*0.09],[size*0.91,size*0.91]],
+    anti:[[size*0.91,size*0.09],[size*0.09,size*0.91]]
+  };
+  let svg="";
+  if(winLineType&&coords[winLineType]){
+    let [start,end]=coords[winLineType];
+    svg=`<svg class="win-line" width="${size}" height="${size}"><line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/></svg>`;
+  }
+  winLineDiv.innerHTML=svg;
+}
+function move(idx){
+  if(board[idx]||winner)return;
+  board[idx]=turn;
+  winner=checkWinner();
+  let found=findWinLine();
+  lastWinLine=found.line; winLineType=found.type;
+  turn=turn==="X"?"O":"X";
+  renderBoard(); updateStatus(); drawWinLine();
+  if(winner) restartBtn.style.display="";
+}
+function restartGame() {
+  board=Array(9).fill(null); turn=isHumanFirst? "X":"X"; winner=null; lastWinLine=[]; winLineType="";
+  renderBoard();updateStatus();drawWinLine();restartBtn.style.display="none";
+  isHumanFirst=!isHumanFirst;
+}
+function backToMenu() {
+  location.reload();
+}
+window.onload=function(){
+  renderBoard();updateStatus();drawWinLine();
+  document.getElementById("year").textContent=new Date().getFullYear();
+}
+window.addEventListener("resize",drawWinLine);
+</script>
 </body>
 </html>
