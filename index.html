@@ -5,44 +5,64 @@
   <title>Tic Tac Toe Multiplayer & AI (X-O)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    :root {
+      --main-blue: #3775dd;
+      --main-pink: #fa5a72;
+      --main-green: #1fa960;
+      --main-yellow: #ffe68a;
+      --main-bg1: #e3eefe;
+      --main-bg2: #efddfb;
+      --cell-shadow: 0 2px 12px #bdd7ff55;
+      --panel-shadow: 0 6px 36px #bdd7ff60, 0 1.5px 6px #0002;
+    }
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #e3eefe 0%, #efddfb 100%);
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: linear-gradient(135deg, var(--main-bg1) 0%, var(--main-bg2) 100%);
       min-height: 100vh;
       margin: 0;
     }
     .container {
-      margin: 48px auto;
-      max-width: 400px;
+      margin: 5vw auto;
+      max-width: 410px;
       background: #fff;
-      padding: 32px 18px 38px 18px;
-      border-radius: 18px;
-      box-shadow: 0 6px 36px #bdd7ff60, 0 1.5px 6px #0002;
+      padding: 34px 18px 40px 18px;
+      border-radius: 22px;
+      box-shadow: var(--panel-shadow);
+      position: relative;
     }
     h1 {
       letter-spacing: 1.5px;
-      color: #3775dd;
+      color: var(--main-blue);
       margin-top: 0;
       margin-bottom: 18px;
-      font-size: 2em;
+      font-size: 2.2em;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--main-blue) 60%, var(--main-pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .menu-btns { margin-bottom: 8px;}
+    .menu-btns { margin-bottom: 12px;}
     .btn-block {
       display: block;
       width: 100%;
       margin: 10px 0;
-      padding: 13px 0;
-      font-size: 1.09em;
+      padding: 15px 0;
+      font-size: 1.12em;
       font-weight: 500;
       border: none;
-      border-radius: 9px;
-      background: linear-gradient(90deg,#3775dd 60%,#4f9aff 100%);
+      border-radius: 11px;
+      background: linear-gradient(90deg, var(--main-blue) 60%, var(--main-pink) 100%);
       color: #fff;
       box-shadow: 0 1px 5px #3775dd20;
       cursor: pointer;
-      transition: background .18s, box-shadow .18s;
+      letter-spacing: 0.5px;
+      transition: background .18s, box-shadow .18s, transform .13s;
     }
-    .btn-block:hover, #copyBtn:hover { background: linear-gradient(90deg,#285bb5 60%,#3775dd 100%);}
+    .btn-block:hover, #copyBtn:hover { 
+      background: linear-gradient(90deg, var(--main-pink) 30%, var(--main-blue) 100%);
+      transform: translateY(-1px) scale(1.025);
+      box-shadow: 0 4px 16px #d2e3ff40;
+    }
     #copyBtn {
       display:inline-block;
       margin-left:5px;
@@ -50,70 +70,79 @@
       font-size:1em;
       border:none;
       border-radius:7px;
-      background:linear-gradient(90deg,#3775dd 60%,#4f9aff 100%);
+      background:linear-gradient(90deg,var(--main-blue) 60%,var(--main-pink) 100%);
       color:#fff; cursor:pointer;
-      transition:background .17s;
+      transition:background .17s, box-shadow .17s;
     }
     #copyBtn.copied {
-      background:linear-gradient(90deg,#2db312 60%,#3cd45a 100%);
+      background:linear-gradient(90deg,var(--main-green) 60%,#64e39f 100%);
       color:#fff;
+      box-shadow: 0 0 8px #b6e5cd60;
     }
     .board {
       display: grid;
-      grid-template-columns: repeat(3, 82px);
-      gap: 10px;
-      margin: 28px auto 8px auto;
+      grid-template-columns: repeat(3, 86px);
+      gap: 12px;
+      margin: 32px auto 10px auto;
       justify-content: center;
     }
     .cell {
-      width: 82px; height: 82px;
-      background: #f6faff;
-      border-radius: 13px;
-      font-size: 2.6em;
+      width: 86px; height: 86px;
+      background: #f5f9ff;
+      border-radius: 17px;
+      font-size: 2.7em;
       font-weight: bold;
-      color: #3775dd;
+      color: var(--main-blue);
       cursor: pointer;
-      line-height: 82px;
-      box-shadow: 0 2px 8px #3775dd18;
+      line-height: 86px;
+      box-shadow: var(--cell-shadow);
       user-select: none;
-      border: 2.2px solid #b4c6d8;
-      transition: background .18s, color .15s, box-shadow .15s;
+      border: 2.5px solid #b4c6d8;
+      transition: background .17s, color .14s, box-shadow .13s, border-color .13s;
       text-align:center;
+      outline: none;
     }
-    .cell:hover { background:#e9f1ff; }
-    .cell.x { color: #3775dd; }
-    .cell.o { color: #fa5a72; }
-    .cell.win { background: #d6f5e9; color: #1fa960;}
+    .cell:hover { background:#e9f1ff; border-color: var(--main-blue);}
+    .cell.x { color: var(--main-blue);}
+    .cell.o { color: var(--main-pink);}
+    .cell.win { background: var(--main-yellow); color: var(--main-green); border-color: var(--main-green);}
     .status {
-      font-size: 1.15em;
-      margin: 13px 0 6px 0;
+      font-size: 1.18em;
+      margin: 15px 0 8px 0;
       font-weight: bold;
       letter-spacing: .5px;
       min-height: 20px;
+      color: #333;
+      text-shadow: 0 1px 0 #fff2;
     }
-    .link {margin:12px 0; color:#3775dd; font-size:1em;}
-    .me {color:#2db312; font-weight:bold;}
-    .wait {color:#c19700;}
+    .link {margin:13px 0; color: var(--main-blue); font-size:1em;}
+    .me {color:var(--main-green); font-weight:bold;}
+    .wait {color:var(--main-pink);}
     input[type="text"], input[type="url"] {
-      font-size: .98em;
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1.2px solid #b4c6d8;
-      width: 74%;
-      margin-bottom: 5px;
+      font-size: 1em;
+      padding: 7px 14px;
+      border-radius: 7px;
+      border: 1.5px solid #b4c6d8;
+      width: 72%;
+      margin-bottom: 6px;
       outline: none;
-      background: #f6faff;
+      background: #f9fbff;
       text-align: center;
+      transition: border-color .15s;
     }
+    input[type="text"]:focus { border-color: var(--main-blue);}
     .footer {
       margin: 22px 0 0 0;
       color: #b7b7b7;
       font-size: .98em;
+      letter-spacing: 0.2px;
+      text-align: center;
+      opacity: 0.95;
     }
     @media (max-width:500px) {
       .container {max-width: 98vw; padding: 7vw 2vw 30vw 2vw;}
-      .board { grid-template-columns: repeat(3, 24vw); gap: 2vw;}
-      .cell { width: 24vw; height: 24vw; font-size: 8vw; line-height: 24vw;}
+      .board { grid-template-columns: repeat(3, 25vw); gap: 2vw;}
+      .cell { width: 25vw; height: 25vw; font-size: 8vw; line-height: 25vw;}
     }
   </style>
 </head>
@@ -138,11 +167,9 @@
   </div>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
-    // === SOZLAMALAR ===
     const backendUrl = "https://tictactoebackend-eh25.onrender.com";
 
-    // === O'zgaruvchilar ===
-    let mode = null; // "local" | "online" | "ai"
+    let mode = null;
     let board = Array(9).fill(null);
     let turn = "X";
     let winner = null;
@@ -152,11 +179,10 @@
     let socket = null;
     let aiSymbol = null;
     let humanSymbol = null;
-    let isHumanFirst = false; // BIRINCHI O'YINDA BOT BOSHLAYDI
+    let isHumanFirst = false; // Birinchi o'yinda bot boshlaydi
     let lastWinLine = [];
     let aiName = "🤖 Bot";
 
-    // DOM
     const mainMenu = document.getElementById("main-menu");
     const gameDiv = document.getElementById("game");
     const statusDiv = document.getElementById("status");
@@ -211,7 +237,7 @@
       mode = "ai";
       board = Array(9).fill(null);
       winner = null;
-      // NAVBAT: kim birinchi yuradi va u X bo'ladimi yoki O
+      // Kim birinchi yuradi navbati: har safar qayta o'yinda isHumanFirst almashadi
       if (isHumanFirst) {
         humanSymbol = "X";
         aiSymbol = "O";
@@ -228,7 +254,6 @@
       renderBoard();
       updateStatus();
       restartBtn.style.display = "none";
-      // Faqat bot navbati bo‘lsa yuradi!
       if (turn === aiSymbol) setTimeout(aiMove, 500);
     }
 
@@ -263,7 +288,6 @@
         board = game.board;
         turn = game.turn;
         winner = game.winner;
-        if (game.starter) nextStarter = game.starter;
         lastWinLine = findWinLine(board);
         renderBoard();
         updateStatus();
@@ -430,7 +454,7 @@
       mainMenu.style.display = "";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
-      isHumanFirst = false; // qayta menyuga chiqqanda default: bot birinchi
+      isHumanFirst = false; // menyuga chiqsangiz default: bot birinchi
     }
 
     function aiMove() {
@@ -451,7 +475,6 @@
     }
 
     function findBestMove(b, ai, human) {
-      // 1. AI yutadigan joy bormi?
       for (let i = 0; i < 9; i++) {
         if (!b[i]) {
           b[i] = ai;
@@ -459,7 +482,6 @@
           b[i] = null;
         }
       }
-      // 2. Human yutadigan joyni to's
       for (let i = 0; i < 9; i++) {
         if (!b[i]) {
           b[i] = human;
@@ -467,7 +489,6 @@
           b[i] = null;
         }
       }
-      // 3. Markaz bo'sh bo'lsa, oladi
       if (!b[4]) return 4;
       return -1;
     }
