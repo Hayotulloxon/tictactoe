@@ -264,7 +264,7 @@
     <div class="panel">
       <h1>Tic Tac Toe <span style="font-size:.75em;">(X-O)</span></h1>
       <div id="main-menu">
-        <div class="menu-btns">
+        <div class="menu-btns" id="main-menu-btns">
           <button class="btn-block" onclick="startLocal()">Lokal (bitta qurilmada)</button>
           <button class="btn-block" onclick="showAIlevels()">AI (bot) bilan o‘ynash</button>
           <button class="btn-block" onclick="startOnline()">Do‘st bilan onlayn</button>
@@ -297,9 +297,11 @@
     const boardDiv=document.getElementById("board"), statusDiv=document.getElementById("status");
     const winLineDiv=document.getElementById("win-line"), restartBtn=document.getElementById("restartBtn");
     const mainMenu = document.getElementById("main-menu");
+    const mainMenuBtns = document.getElementById("main-menu-btns");
     const gameDiv = document.getElementById("game");
     const aiLevels = document.getElementById("ai-levels");
     function showAIlevels() {
+      mainMenuBtns.style.display = "none";
       aiLevels.style.display = "flex";
     }
     function startAI(level) {
@@ -512,6 +514,7 @@
       gameDiv.style.display="none";
       mainMenu.style.display="";
       aiLevels.style.display="none";
+      mainMenuBtns.style.display = "";
     }
     window.onload=function(){
       renderBoard();updateStatus();drawWinLine();
