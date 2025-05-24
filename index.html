@@ -587,12 +587,9 @@
       gameId = q.get("game");
       let isJoin = !!gameId;
       if (!gameId) {
-        // Host (yaratuvchi) uchun yangi o'yin id ochiladi
         gameId = Math.random().toString(36).slice(2,10);
         history.replaceState({}, '', '?game=' + gameId);
       }
-      // X - doim birinchi, O - doim ikkinchi
-      // Havola orqali kirganlarda havola chiqmaydi!
       if (isJoin) {
         mySymbol = "O";
         oppSymbol = "X";
@@ -604,7 +601,7 @@
         oppSymbol = "O";
         firstPlayer = "X";
         turn = "X";
-        showShareLink(); // faqat hostda!
+        showShareLink();
       }
       mode = "online";
       mainMenu.style.display = "none";
@@ -663,10 +660,24 @@
         if (winner && lastWinLine.length > 0) fireConfetti();
       });
       socket.on("player-joined", () => {
-        // Faqat host (X) uchun havolani o'chirib, matn chiqadi
         if (mySymbol === "X") {
           shareBlock.innerHTML = `<div style="color:var(--neon-green);font-weight:700;margin-top:13px;">Do‘stingiz ulandi! O‘yin boshlandi.</div>`;
         }
+      });
+      socket.on("restart", (newTurn) => {
+        // Multiplayerda qayta o'ynash: ikki tomonda ham yangilash
+        turn = newTurn;
+        firstPlayer = newTurn;
+        board = Array(9).fill(null);
+        winner = null;
+        lastWinLine = [];
+        winLineType = "";
+        renderBoard();
+        updateStatus();
+        restartBtn.style.display = "none";
+        clearConfetti();
+        updateWinLine();
+        setTimeout(addBtnGlowSvg, 30);
       });
       socket.on("disconnect", () => {
         statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
@@ -820,25 +831,28 @@
       return withType ? {line:[],type:""} : [];
     }
     function restartGame() {
-      firstPlayer = (firstPlayer === "X" ? "O" : "X");
-      turn = firstPlayer;
-      board = Array(9).fill(null);
-      winner = null;
-      lastWinLine = [];
-      winLineType = "";
-      if (mode === "ai") {
-        humanSymbol = firstPlayer;
-        aiSymbol = (firstPlayer === "X" ? "O" : "X");
-      }
-      renderBoard();
-      updateStatus();
-      restartBtn.style.display = "none";
-      clearConfetti();
-      updateWinLine();
-      setTimeout(addBtnGlowSvg, 30);
-      if (mode === "ai" && turn === aiSymbol) setTimeout(checkBotMove, 180);
-      else if (mode === "online" && socket && gameId) {
-        socket.emit("restart", {gameId: gameId});
+      if (mode === "online" && socket && gameId) {
+        // Multiplayerda har doim X ga navbat o'tadi va serverga so'rov yuboriladi
+        socket.emit("restart", {gameId: gameId, turn: "X"});
+        // Qolgan barcha logika socket.on("restart") da ishlaydi
+      } else {
+        firstPlayer = (firstPlayer === "X" ? "O" : "X");
+        turn = firstPlayer;
+        board = Array(9).fill(null);
+        winner = null;
+        lastWinLine = [];
+        winLineType = "";
+        if (mode === "ai") {
+          humanSymbol = firstPlayer;
+          aiSymbol = (firstPlayer === "X" ? "O" : "X");
+        }
+        renderBoard();
+        updateStatus();
+        restartBtn.style.display = "none";
+        clearConfetti();
+        updateWinLine();
+        setTimeout(addBtnGlowSvg, 30);
+        if (mode === "ai" && turn === aiSymbol) setTimeout(checkBotMove, 180);
       }
     }
     function backToMenu() {
@@ -850,6 +864,7 @@
       winLineType = "";
       mainMenu.style.display = "";
       aiMenu.style.display = "none";
+      mainMenu.querySelector('.menu-btns').style.display = "";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
       clearConfetti();
