@@ -370,6 +370,7 @@
       opacity: 0.98;
       text-shadow: 0 1px 0 #fff7;
     }
+    /* AI menyu va pastki tugmalar uchun qisqa uslub */
     .ai-menu {
       display: flex;
       flex-direction: column;
@@ -712,13 +713,8 @@
         }
         setTimeout(checkBotMove, 220);
       } else if (mode === "online") {
-        if (!gameId || !mySymbol || winner) return;
-        if (turn !== mySymbol) return;
-        socket.emit("move", {
-          gameId: gameId,
-          idx: idx,
-          player: mySymbol
-        });
+        if ((mySymbol !== turn) || winner) return;
+        socket.emit("move", { gameId, idx, player: mySymbol });
       }
     }
     function renderBoard() {
@@ -822,8 +818,8 @@
       updateWinLine();
       setTimeout(addBtnGlowSvg, 30);
       if (mode === "ai" && turn === aiSymbol) setTimeout(checkBotMove, 180);
-      else if (mode === "online" && socket && gameId) {
-        socket.emit("restart", {gameId: gameId});
+      else if (mode === "online" && socket) {
+        socket.emit("restart", gameId);
       }
     }
     function backToMenu() {
