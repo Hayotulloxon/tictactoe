@@ -10,44 +10,74 @@
       --main-pink: #fa5a72;
       --main-green: #1fa960;
       --main-yellow: #ffe68a;
-      --main-bg1: #291a6d;
-      --main-bg2: #ff48c7;
-      --main-bg3: #ffd6e0;
-      --cell-shadow: 0 2px 16px #5e6fff99;
-      --panel-shadow: 0 8px 36px #0004, 0 1.5px 8px #3775dd33;
     }
     body {
-      font-family: 'Segoe UI', 'Arial', sans-serif;
       min-height: 100vh;
       margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      /* Super impressive animated background (Aurora + gradient + stars) */
+      background: #2b1055;
+      background-image: 
+        radial-gradient(ellipse at 80% 10%, #ff48c7 0 20%, #ffd6e0 40%, rgba(41,26,109,0.7) 100%),
+        radial-gradient(ellipse at 0% 100%, #d2eaff 0 30%, #9be7ff 60%, #291a6d 100%),
+        linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
+      position: relative;
       overflow-x: hidden;
-      background: radial-gradient(ellipse at 70% 40%, var(--main-bg2) 0 30%, #ffb1ff 60%, var(--main-bg1) 100%),
-                  radial-gradient(ellipse at 0% 100%, var(--main-bg3) 0 33%, #9be7ff 70%, #291a6d 100%),
-                  linear-gradient(120deg, #2b32b2 0%, #1488cc 100%);
-      animation: bgmove 24s linear infinite alternate;
     }
-    @keyframes bgmove {
-      0% { background-position: 100% 0, 0 100%, 0 0;}
-      100% { background-position: 0 0, 100% 0, 100% 100%;}
+    body::before {
+      /* Aurora effect */
+      content: "";
+      position: fixed;
+      left: 0; right: 0; top: 0; bottom: 0;
+      z-index: 0;
+      background: 
+        repeating-linear-gradient(120deg,rgba(255,255,255,0.06) 0 2px,rgba(0,0,0,0) 2px 60px),
+        linear-gradient(100deg,rgba(255,255,255,0.08) 5%,rgba(41,16,85,0.25) 95%);
+      pointer-events: none;
+      animation: aurora-move 14s ease-in-out infinite alternate;
     }
+    @keyframes aurora-move {
+      0% {filter: blur(22px) hue-rotate(0deg);}
+      100% {filter: blur(28px) hue-rotate(35deg);}
+    }
+    body::after {
+      /* Stars */
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      left: 0; right: 0; top: 0; bottom: 0;
+      z-index: 0;
+      background-image: 
+        repeating-radial-gradient(circle at 20% 30%, #fff9 0 0.6px, transparent 1.5px 100px),
+        repeating-radial-gradient(circle at 70% 60%, #fff5 0 1.2px, transparent 2.5px 120px),
+        repeating-radial-gradient(circle at 90% 10%, #fff6 0 0.8px, transparent 1.5px 70px);
+      animation: stars-move 40s linear infinite;
+      opacity: 0.7;
+    }
+    @keyframes stars-move {
+      0% {background-position: 0 0,0 0,0 0;}
+      100% {background-position: 60px 40px, -80px 0px, 100px 60px;}
+    }
+
     .container {
-      margin: 6vw auto;
+      margin: 7vw auto 0 auto;
       max-width: 425px;
-      background: rgba(255,255,255,0.90);
-      padding: 38px 18px 40px 18px;
-      border-radius: 24px;
-      box-shadow: var(--panel-shadow);
+      background: rgba(255,255,255,0.95);
+      padding: 38px 18px 32px 18px;
+      border-radius: 28px;
+      box-shadow: 0 8px 36px #0004, 0 1.5px 8px #3775dd33;
       position: relative;
       z-index: 1;
-      backdrop-filter: blur(3px);
+      backdrop-filter: blur(3.3px);
       border: 2.5px solid #fff8;
     }
     h1 {
+      text-align:center;
       letter-spacing: 1.5px;
       color: var(--main-blue);
       margin-top: 0;
       margin-bottom: 18px;
-      font-size: 2.35em;
+      font-size: 2.3em;
       font-weight: 800;
       background: linear-gradient(90deg, #fff 10%, var(--main-blue) 50%, var(--main-pink) 85%);
       -webkit-background-clip: text;
@@ -100,11 +130,11 @@
       color:#fff;
       box-shadow: 0 0 10px #b6e5cd93;
     }
+
     .board-wrap {
       position: relative;
-      width: 320px;
-      height: 320px;
-      margin: 38px auto 12px auto;
+      width: 320px; height: 320px;
+      margin: 34px auto 0 auto;
     }
     .board {
       width: 100%; height: 100%;
@@ -210,7 +240,7 @@
       text-shadow: 0 1px 0 #fff7;
     }
     @media (max-width:600px) {
-      .container {max-width: 99vw; padding: 7vw 2vw 34vw 2vw;}
+      .container {max-width: 99vw; padding: 7vw 2vw 24vw 2vw;}
       .board-wrap, .win-line {width: 90vw; height: 90vw; max-width: 99vw; max-height: 99vw;}
       .cell {font-size:8vw;}
     }
@@ -611,7 +641,6 @@
     }
 
     function drawWinLine() {
-      // SVG lines for board: size 320x320 (or 90vw x 90vw on mobile)
       let size = boardDiv.offsetWidth || 320;
       let coords = {
         row0: [ [size*0.08, size*0.17], [size*0.92, size*0.17] ],
