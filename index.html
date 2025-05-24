@@ -177,6 +177,7 @@
       width: 320px; height: 320px;
       pointer-events: none;
       z-index: 3;
+      /* Animate the win line */
     }
     .win-line-line {
       stroke: #1fa960;
@@ -640,7 +641,7 @@
         anti: [ [size*0.91, size*0.09], [size*0.09, size*0.91] ]
       };
       let svg = "";
-      if(winLineType && coords[winLineType]) {
+      if(winLineType && coords[winLineType] && lastWinLine.length === 3) {
         let [start,end] = coords[winLineType];
         svg = `<svg class="win-line" width="${size}" height="${size}">
           <line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/>
