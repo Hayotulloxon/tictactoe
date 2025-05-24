@@ -11,8 +11,6 @@
       --neon-pink: #ff53c3;
       --neon-green: #25ff93;
       --neon-yellow: #fff35b;
-      --neon-bg: #10192a;
-      --neon-bg2: #181f32;
       --cell-gap: 32px;
     }
     html, body {
@@ -62,7 +60,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      /* LESS shadow/brightness, minimal wow */
       filter: drop-shadow(0 0 7px #53eaff88) drop-shadow(0 0 5px #ff53c388);
       text-shadow: 0 0 7px #fff, 0 0 5px #ff53c3aa, 0 0 4px #53eaff77;
       user-select: none;
@@ -188,6 +185,67 @@
       backdrop-filter: blur(2.5px);
       text-shadow: 0 0 3px #fff, 0 0 2px #53eaff44;
     }
+    .share-block-main {
+      margin: 22px 0 8px 0;
+      padding: 22px 18px 14px 18px;
+      background: #181f32f7;
+      border-radius: 16px;
+      border: 2.5px solid #53eaff55;
+      box-shadow: 0 0 22px #53eaff22;
+      text-align: center;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #fff;
+      transition: box-shadow .15s;
+      max-width: 420px;
+      word-break: break-all;
+    }
+    .share-block-link {
+      display: flex;
+      align-items: center;
+      margin: 12px 0 0 0;
+      justify-content: center;
+      gap: 8px;
+    }
+    .share-block-link input {
+      border: none;
+      background: #23294e;
+      color: #fff;
+      font-size: 1.1em;
+      border-radius: 8px;
+      padding: 8px 8px;
+      width: 70%;
+      outline: none;
+      font-family: inherit;
+      margin-right: 4px;
+    }
+    .share-block-link button {
+      border: none;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 1em;
+      background: linear-gradient(90deg, #53eaff44 0%, #ff53c344 100%);
+      color: #fff;
+      cursor: pointer;
+      padding: 9px 14px;
+      transition: background .15s;
+    }
+    .share-block-link button.copied {
+      background: #25ff93cc;
+      color: #101a22;
+    }
+    .share-block-main .wait {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.95em;
+      color: #fff35b;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+    .share-block-main .me {
+      color: var(--neon-green);
+      font-weight: 700;
+    }
     .board-wrap {
       position: relative;
       width: 412px; height: 412px;
@@ -303,6 +361,29 @@
     @keyframes winLineAnim {
       to { stroke-dashoffset: 0;}
     }
+    .footer {
+      margin: 35px 0 0 0;
+      color: #b7b7b7;
+      font-size: 1.09em;
+      letter-spacing: 0.22px;
+      text-align: center;
+      opacity: 0.98;
+      text-shadow: 0 1px 0 #fff7;
+    }
+    .ai-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      width: 100%;
+      align-items: stretch;
+    }
+    .ai-menu .btn-block {
+      margin: 0;
+      padding: 30px 0;
+      font-size: 1.09em;
+    }
     .bottom-btns {
       display: flex;
       flex-direction: column;
@@ -321,15 +402,6 @@
       border-radius: 26px;
       box-shadow: 0 1.5px 13px #53eaff44;
     }
-    .footer {
-      margin: 35px 0 0 0;
-      color: #b7b7b7;
-      font-size: 1.09em;
-      letter-spacing: 0.22px;
-      text-align: center;
-      opacity: 0.98;
-      text-shadow: 0 1px 0 #fff7;
-    }
     @media (max-width:600px) {
       .container {max-width: 99vw; padding: 7vw 2vw 24vw 2vw;}
       .panel {max-width:99vw;}
@@ -337,11 +409,11 @@
       .cell {font-size:13vw;}
       .bottom-btns {margin-top: 13vw;}
       .btn-block, .bottom-btns .btn-block {padding: 13vw 0;}
+      .share-block-main {max-width: 98vw;}
     }
   </style>
 </head>
 <body>
-  <!-- SVG gradients for OX and button effect -->
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <linearGradient id="xoBlueGrad" x1="0" y1="0" x2="1" y2="1">
@@ -377,10 +449,16 @@
             <span>Do‘st bilan onlayn</span>
             <span class="btn-glow"></span>
           </button>
-          <button class="btn-block" onclick="startAI()">
+          <button class="btn-block" onclick="showAIMenu()">
             <span>AI (bot) bilan o‘ynash</span>
             <span class="btn-glow"></span>
           </button>
+        </div>
+        <div id="ai-menu" class="ai-menu" style="display:none;">
+          <button class="btn-block" onclick="startAI('easy')">AI: Oson</button>
+          <button class="btn-block" onclick="startAI('medium')">AI: O‘rta</button>
+          <button class="btn-block" onclick="startAI('hard')">AI: Qiyin</button>
+          <button class="btn-block" onclick="hideAIMenu()">Ortga</button>
         </div>
       </div>
       <div id="game" style="display:none;">
@@ -389,6 +467,7 @@
           <div id="win-line"></div>
           <div class="board" id="board"></div>
         </div>
+        <div id="share-block"></div>
         <div class="bottom-btns">
           <button class="btn-block" id="restartBtn" style="display:none;" onclick="restartGame()">
             <span>Qayta o‘ynash</span>
@@ -399,13 +478,14 @@
             <span class="btn-glow"></span>
           </button>
         </div>
-        <div id="share-block" class="link"></div>
       </div>
       <div class="footer">© <span id="year"></span> Tic Tac Toe | Hayotulloxon uchun maxsus</div>
       <div class="confetti" id="confetti"></div>
     </div>
   </div>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
+    const backendUrl = "https://tictactoebackend-eh25.onrender.com";
     function addBtnGlowSvg() {
       document.querySelectorAll('.btn-glow').forEach(function(glow) {
         if (glow.innerHTML.trim() === "") {
@@ -449,8 +529,6 @@
         </span>`;
       } else return '';
     }
-
-    // Logic unchanged except OX rendering
     let mode = null;
     let board = Array(9).fill(null);
     let turn = "X";
@@ -461,11 +539,13 @@
     let socket = null;
     let aiSymbol = null;
     let humanSymbol = null;
-    let isHumanFirst = true;
+    let aiLevel = "medium";
     let lastWinLine = [];
     let winLineType = "";
     let aiName = "🤖 Bot";
+    let firstPlayer = "X";
     const mainMenu = document.getElementById("main-menu");
+    const aiMenu = document.getElementById("ai-menu");
     const gameDiv = document.getElementById("game");
     const statusDiv = document.getElementById("status");
     const boardDiv = document.getElementById("board");
@@ -474,10 +554,18 @@
     const shareBlock = document.getElementById("share-block");
     const confettiDiv = document.getElementById("confetti");
 
+    function showAIMenu() {
+      aiMenu.style.display = "";
+      mainMenu.querySelector('.menu-btns').style.display = "none";
+    }
+    function hideAIMenu() {
+      aiMenu.style.display = "none";
+      mainMenu.querySelector('.menu-btns').style.display = "";
+    }
     function startLocal() {
       mode = "local";
       board = Array(9).fill(null);
-      turn = "X";
+      turn = firstPlayer;
       winner = null;
       mySymbol = null;
       oppSymbol = null;
@@ -492,17 +580,97 @@
       clearConfetti();
       setTimeout(addBtnGlowSvg, 30);
     }
-    function startOnline() { /* ...unchanged... */ }
-    function startAI() {
+    function startOnline() {
+      turn = firstPlayer;
+      mySymbol = turn;
+      oppSymbol = (turn === "X" ? "O" : "X");
+      let q = new URLSearchParams(location.search);
+      gameId = q.get("game");
+      if (!gameId) {
+        gameId = Math.random().toString(36).slice(2,10);
+        history.replaceState({}, '', '?game=' + gameId);
+        showShareLink();
+      } else {
+        mySymbol = (firstPlayer === "X" ? "O" : "X");
+        oppSymbol = firstPlayer;
+      }
+      mode = "online";
+      mainMenu.style.display = "none";
+      if (aiMenu) aiMenu.style.display = "none";
+      gameDiv.style.display = "";
+      board = Array(9).fill(null);
+      winner = null;
+      lastWinLine = [];
+      winLineType = "";
+      restartBtn.style.display = "none";
+      renderBoard();
+      updateStatus();
+      connectSocket();
+      clearConfetti();
+      setTimeout(addBtnGlowSvg, 50);
+    }
+    function showShareLink() {
+      shareBlock.innerHTML = `
+        <div class="share-block-main">
+          <div><b>Do‘stingiz bilan o‘ynash uchun havolani ulashing:</b></div>
+          <div class="share-block-link">
+            <input id="shareInput" type="text" readonly value="${location.href}">
+            <button id="copyBtn" onclick="copyShareLink()">Nusxalash</button>
+          </div>
+          <span class="wait">Do‘stingiz ushbu havola orqali kirishi kerak.</span>
+        </div>
+      `;
+    }
+    function copyShareLink() {
+      const input = document.getElementById("shareInput");
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value).then(()=>{
+        const btn = document.getElementById("copyBtn");
+        btn.textContent = "Nusxalandi!";
+        btn.classList.add("copied");
+        setTimeout(()=>{
+          btn.textContent = "Nusxalash";
+          btn.classList.remove("copied");
+        }, 1300);
+      });
+    }
+    function connectSocket() {
+      socket = io(backendUrl);
+      socket.on("connect", () => {
+        socket.emit("join", gameId);
+      });
+      socket.on("state", (game) => {
+        board = game.board;
+        turn = game.turn;
+        winner = game.winner;
+        updateWinLine();
+        renderBoard();
+        updateStatus();
+        if (winner) restartBtn.style.display = "";
+        if (winner && lastWinLine.length > 0) fireConfetti();
+      });
+      socket.on("player-joined", () => {
+        if (mySymbol === firstPlayer) {
+          shareBlock.innerHTML = `<div class="share-block-main"><span class="me">Do‘stingiz ulandi! O‘yin boshlandi.</span></div>`;
+        }
+      });
+      socket.on("disconnect", () => {
+        statusDiv.textContent = "Server bilan aloqa uzildi. Qayta urinilmoqda...";
+      });
+    }
+    function startAI(level) {
+      aiLevel = level || "medium";
       mode = "ai";
       board = Array(9).fill(null);
       winner = null;
-      humanSymbol = "X";
-      aiSymbol = "O";
-      turn = "X";
+      turn = firstPlayer;
+      humanSymbol = firstPlayer;
+      aiSymbol = (firstPlayer === "X" ? "O" : "X");
       lastWinLine = [];
       winLineType = "";
       mainMenu.style.display = "none";
+      aiMenu.style.display = "none";
       shareBlock.innerHTML = "";
       gameDiv.style.display = "";
       renderBoard();
@@ -510,11 +678,11 @@
       restartBtn.style.display = "none";
       clearConfetti();
       setTimeout(addBtnGlowSvg, 50);
-      setTimeout(checkBotMove, 100);
+      setTimeout(checkBotMove, 150);
     }
     function checkBotMove() {
       if (mode === "ai" && turn === aiSymbol && !winner) {
-        setTimeout(aiMove, 180);
+        setTimeout(aiMove, 220);
       }
     }
     function move(idx) {
@@ -542,7 +710,15 @@
           restartBtn.style.display = "";
           if (lastWinLine.length > 0) fireConfetti();
         }
-        setTimeout(checkBotMove, 180);
+        setTimeout(checkBotMove, 220);
+      } else if (mode === "online") {
+        if (!gameId || !mySymbol || winner) return;
+        if (turn !== mySymbol) return;
+        socket.emit("move", {
+          gameId: gameId,
+          idx: idx,
+          player: mySymbol
+        });
       }
     }
     function renderBoard() {
@@ -586,6 +762,21 @@
         } else {
           statusDiv.textContent = aiName + " navbati...";
         }
+      } else if (mode === "online") {
+        if (!mySymbol) return;
+        if (winner) {
+          if (winner === "draw") {
+            statusDiv.textContent = "Durrang!";
+          } else if (winner === mySymbol) {
+            statusDiv.textContent = "Siz g‘olibsiz! 🎉";
+          } else {
+            statusDiv.textContent = "Do‘stingiz g‘olib!";
+          }
+        } else if (turn === mySymbol) {
+          statusDiv.innerHTML = 'Sizning navbatingiz <span class="me">(' + mySymbol + ')</span>';
+        } else {
+          statusDiv.innerHTML = 'Do‘stingiz harakati <span class="wait">(' + oppSymbol + ')</span>';
+        }
       }
     }
     function checkWinner() {
@@ -614,17 +805,26 @@
       return withType ? {line:[],type:""} : [];
     }
     function restartGame() {
+      firstPlayer = (firstPlayer === "X" ? "O" : "X");
+      turn = firstPlayer;
       board = Array(9).fill(null);
-      turn = "X";
       winner = null;
       lastWinLine = [];
       winLineType = "";
+      if (mode === "ai") {
+        humanSymbol = firstPlayer;
+        aiSymbol = (firstPlayer === "X" ? "O" : "X");
+      }
       renderBoard();
       updateStatus();
       restartBtn.style.display = "none";
       clearConfetti();
       updateWinLine();
       setTimeout(addBtnGlowSvg, 30);
+      if (mode === "ai" && turn === aiSymbol) setTimeout(checkBotMove, 180);
+      else if (mode === "online" && socket && gameId) {
+        socket.emit("restart", {gameId: gameId});
+      }
     }
     function backToMenu() {
       mode = null;
@@ -634,20 +834,28 @@
       lastWinLine = [];
       winLineType = "";
       mainMenu.style.display = "";
+      aiMenu.style.display = "none";
       gameDiv.style.display = "none";
       shareBlock.innerHTML = "";
-      isHumanFirst = true;
       clearConfetti();
       updateWinLine();
       setTimeout(addBtnGlowSvg, 30);
     }
     function aiMove() {
-      if (winner || turn !== aiSymbol) return;
-      let moveIdx = findBestMove(board, aiSymbol, humanSymbol);
-      if (moveIdx === -1) {
-        let empties = board.map((v, i) => v ? null : i).filter(v => v !== null);
-        moveIdx = empties[Math.floor(Math.random() *empties.length)];
+      let moveIdx;
+      if (aiLevel === "easy") {
+        let empties = board.map((v,i)=>v?null:i).filter(v=>v!==null);
+        moveIdx = empties[Math.floor(Math.random()*empties.length)];
+      } else if (aiLevel === "medium") {
+        moveIdx = findBestMove(board, aiSymbol, humanSymbol);
+        if (moveIdx === -1) {
+          let empties = board.map((v,i)=>v?null:i).filter(v=>v!==null);
+          moveIdx = empties[Math.floor(Math.random()*empties.length)];
+        }
+      } else if (aiLevel === "hard") {
+        moveIdx = minimax(board, aiSymbol).index;
       }
+      if (moveIdx === undefined || moveIdx === null) return;
       board[moveIdx] = aiSymbol;
       winner = checkWinner();
       updateWinLine();
@@ -658,7 +866,7 @@
         restartBtn.style.display = "";
         if (lastWinLine.length > 0) fireConfetti();
       }
-      setTimeout(checkBotMove, 150);
+      setTimeout(checkBotMove, 120);
     }
     function findBestMove(b, ai, human) {
       for (let i = 0; i < 9; i++) {
@@ -675,29 +883,59 @@
           b[i] = null;
         }
       }
-      if (!b[4]) return 4;
       return -1;
     }
-    function drawWinLine() {
-      let size = boardDiv.offsetWidth || 412;
-      let coords = {
-        row0: [ [size*0.08, size*0.17], [size*0.92, size*0.17] ],
-        row1: [ [size*0.08, size*0.5], [size*0.92, size*0.5] ],
-        row2: [ [size*0.08, size*0.83], [size*0.92, size*0.83] ],
-        col0: [ [size*0.17, size*0.08], [size*0.17, size*0.92] ],
-        col1: [ [size*0.5, size*0.08], [size*0.5, size*0.92] ],
-        col2: [ [size*0.83, size*0.08], [size*0.83, size*0.92] ],
-        main: [ [size*0.09, size*0.09], [size*0.91, size*0.91] ],
-        anti: [ [size*0.91, size*0.09], [size*0.09, size*0.91] ]
-      };
-      let svg = "";
-      if(winLineType && coords[winLineType] && lastWinLine.length === 3) {
-        let [start,end] = coords[winLineType];
-        svg = `<svg class="win-line" width="${size}" height="${size}">
-          <line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/>
-        </svg>`;
+    function minimax(newBoard, player) {
+      let availSpots = newBoard.map((v,i)=>v?null:i).filter(v=>v!==null);
+      let huPlayer = humanSymbol;
+      let aiPlayer = aiSymbol;
+      if (checkWin(newBoard, huPlayer)) return {score: -10};
+      else if (checkWin(newBoard, aiPlayer)) return {score: 10};
+      else if (availSpots.length === 0) return {score: 0};
+      let moves = [];
+      for (let i=0; i<availSpots.length; i++){
+        let move = {};
+        move.index = availSpots[i];
+        newBoard[availSpots[i]] = player;
+        if (player === aiPlayer){
+          let result = minimax(newBoard, huPlayer);
+          move.score = result.score;
+        } else {
+          let result = minimax(newBoard, aiPlayer);
+          move.score = result.score;
+        }
+        newBoard[availSpots[i]] = null;
+        moves.push(move);
       }
-      winLineDiv.innerHTML = svg;
+      let bestMove, bestScore;
+      if (player === aiPlayer){
+        bestScore = -Infinity;
+        for (let i=0; i<moves.length; i++){
+          if (moves[i].score > bestScore){
+            bestScore = moves[i].score; bestMove = i;
+          }
+        }
+      } else {
+        bestScore = Infinity;
+        for (let i=0; i<moves.length; i++){
+          if (moves[i].score < bestScore){
+            bestScore = moves[i].score; bestMove = i;
+          }
+        }
+      }
+      return moves[bestMove];
+    }
+    function checkWin(board, player) {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (let l of wins) {
+        const [a,b,c] = l;
+        if (board[a] === player && board[b] === player && board[c] === player) return true;
+      }
+      return false;
     }
     function fireConfetti() {
       clearConfetti();
@@ -725,6 +963,27 @@
       setTimeout(addBtnGlowSvg, 50);
     }
     window.addEventListener("resize", drawWinLine);
+    function drawWinLine() {
+      let size = boardDiv.offsetWidth || 412;
+      let coords = {
+        row0: [ [size*0.08, size*0.17], [size*0.92, size*0.17] ],
+        row1: [ [size*0.08, size*0.5], [size*0.92, size*0.5] ],
+        row2: [ [size*0.08, size*0.83], [size*0.92, size*0.83] ],
+        col0: [ [size*0.17, size*0.08], [size*0.17, size*0.92] ],
+        col1: [ [size*0.5, size*0.08], [size*0.5, size*0.92] ],
+        col2: [ [size*0.83, size*0.08], [size*0.83, size*0.92] ],
+        main: [ [size*0.09, size*0.09], [size*0.91, size*0.91] ],
+        anti: [ [size*0.91, size*0.09], [size*0.09, size*0.91] ]
+      };
+      let svg = "";
+      if(winLineType && coords[winLineType] && lastWinLine.length === 3) {
+        let [start,end] = coords[winLineType];
+        svg = `<svg class="win-line" width="${size}" height="${size}">
+          <line class="win-line-line" x1="${start[0]}" y1="${start[1]}" x2="${end[0]}" y2="${end[1]}"/>
+        </svg>`;
+      }
+      winLineDiv.innerHTML = svg;
+    }
   </script>
 </body>
 </html>
